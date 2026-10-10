@@ -43,6 +43,74 @@ class Button {
     }
 }
 
+class Projectile {
+    x;
+    y;
+    v;
+    length;
+    direction;
+    size;
+    effect;
+    color;
+    source;
+
+    constructor(x, y, v, len, dir, size, effect, color, source) {
+        this.x = x;
+        this.y = y;
+        this.v = v;
+        this.length = len;
+        this.direction = dir;
+        this.size = size;
+        this.effect = effect;
+        this.color = color;
+        this.source = source;
+    }
+
+    step() {
+        x += v * cos(dir);
+        y += v * sin(dir);
+    }
+
+    draw(playerX, playerY, playerDir) {
+        let rx = this.x - playerX;
+        let ry = this.y - playerY;
+        let rytemp = ry;
+        let rDir = this.dir - playerDir;
+
+        ry = rx * sin(playerDir) + rytemp * sin(playerDir);
+        rx = rx * cos(playerDir) - rytemp * sin(playerDir);
+
+        ctx.strokeStyle = this.color;
+        ctx.borderWidth = this.size;
+
+        ctx.beginPath();
+        ctx.moveTo(rx, ry);
+        ctx.lineTo(rx + length * cos(rDir), ry + length * sin(rDir));
+        ctx.stroke();
+    }
+}
+
+class Entity {
+    x;
+    y;
+    direction;
+    size;
+    type;
+    xv;
+    yv;
+
+    constructor(x, y, dir, size, type, xv, yv) {
+        this.x = x;
+        this.y = y;
+        this.direction = dir;
+        this.size = size;
+        this.type = type;
+        this.xv = xv;
+        this.yv = yv;
+    }
+
+}
+
 //setting up some vars for the canvas
 const plot = document.getElementById("plot");
 const ctx = plot.getContext("2d");
@@ -51,6 +119,23 @@ const buttons = [
     new Button(320, 240, 400, 45, "Play Rogue", 0), 
     new Button(320, 310, 400, 45, "Exit Game", 0)
 ];
+
+document.getElementById("plot").addEventListener(click, function() {
+    let func = 0;
+    for (let i = 0; i < buttons.length; i++) 
+        if (buttons.at(i).inBounds(mousex, mousey) == true && buttons.at(i).visible == true) {
+            func = buttons.at(i).func;
+            break;
+        }
+    switch(func) {
+        case 1:
+            break;
+        case 2:
+            break;
+        default:
+    };
+});
+
 
 access();
 
