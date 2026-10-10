@@ -5,6 +5,8 @@ class UI {
 
 class Button {
     pageID = 0;
+    visible = false;
+    func = "NA";
     x = 0;
     y = 0;
     width = 0;
@@ -13,9 +15,10 @@ class Button {
     fontSize = 30;
     borderWidth = 5;
 
-    constructor(x, y, width, height, text, pageID) {
+    constructor(x, y, width, height, text, pageID, functionality) {
         this.x = x;
         this.y = y;
+        this.func = functionality;
         this.width = width;
         this.height = height;
         this.text = text;
@@ -30,6 +33,7 @@ class Button {
         ctx.fillStyle = 'rgb(102, 177, 68)';
         ctx.font = `${this.fontSize}px monospace`;
         ctx.fillText(this.text, this.x - ctx.measureText(this.text).width/2, this.y + this.fontSize / 3);
+        this.visible = true;
     }
 
     setStyle(borderWidth, fontSize) {
@@ -38,8 +42,8 @@ class Button {
     }
 
     inBounds(xpos, ypos) {
-        if (xpos > this.x - this.width/2 && xpos < x + this.width/2 && ypos > this.y - this.height/2 && ypos < this.y + this.height/2) return 1;
-        else return 0;
+        if (xpos > this.x - this.width/2 && xpos < this.x + this.width/2 && ypos > this.y - this.height/2 && ypos < this.y + this.height/2) return true;
+        else return false;
     }
 }
 
@@ -116,21 +120,24 @@ const plot = document.getElementById("plot");
 const ctx = plot.getContext("2d");
 
 const buttons = [
-    new Button(320, 240, 400, 45, "Play Rogue", 0), 
-    new Button(320, 310, 400, 45, "Exit Game", 0)
+    new Button(320, 240, 400, 45, "Play Rogue", 0, "PlayGame"), 
+    new Button(320, 310, 400, 45, "Exit Game", 0, "Close")
 ];
 
-document.getElementById("plot").addEventListener(click, function() {
-    let func = 0;
+var menuState = 0;
+
+document.getElementById("plot").addEventListener('click', function(e) {
+    let func = "NA";
     for (let i = 0; i < buttons.length; i++) 
-        if (buttons.at(i).inBounds(mousex, mousey) == true && buttons.at(i).visible == true) {
+        if (buttons.at(i).inBounds(e.clientX, e.clientY) == true && buttons.at(i).visible == true) {
             func = buttons.at(i).func;
             break;
         }
     switch(func) {
-        case 1:
+        case "PlayGame":
+            menuState = 1;
             break;
-        case 2:
+        case "Close":
             break;
         default:
     };
@@ -140,13 +147,12 @@ document.getElementById("plot").addEventListener(click, function() {
 access();
 
 function access() {
-    var menuState = 0;
-
     ctx.fillStyle = 'black';
     ctx.fillRect(3, 3, 634, 354);
 
-    for (var i = 0; i < buttons.length; i++) if (buttons.at(i).pageID == menuState) buttons.at(i).drawButton();
-
+    for (var i = 0; i < buttons.length; i++) 
+        if (buttons.at(i).pageID == menuState) buttons.at(i).drawButton();
+        else buttons.at(i).visible = false;
     if (menuState == 0) {
         ctx.fillStyle = 'rgb(100, 219, 45)';
         ctx.font = '60px monospaced';
@@ -164,7 +170,7 @@ function shop() {
 function upgrade() {
 }
 
-function draw(x, y, angle, projectiles, entities) {
+function draw(x, y, angle) {
     ctx.fillStyle = 'rgb(100, 219, 45)';
     ctx.fillRect(280, 180, 40, 40);
 }
