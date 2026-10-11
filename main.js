@@ -40,6 +40,13 @@ class Button {
     }
 }
 
+class position {
+    x = 0;
+    y = 0;
+    v = 0;
+    dir = -Math.PI/2;
+}
+
 class Projectile {
     x;
     y;
@@ -119,6 +126,8 @@ class keys {
     e = false;
 }
 
+
+
 //setting up some vars for the canvas
 const plot = document.getElementById("plot");
 const ctx = plot.getContext("2d");
@@ -134,6 +143,7 @@ let running = true;
 let tickCount = 0;
 
 let keyIn = new keys();
+let pos = new position();
 
 plot.addEventListener('click', function(e) {
     let func = "NA";
@@ -155,7 +165,7 @@ plot.addEventListener('click', function(e) {
     };
 });
 
-plot.addEventListener('keydown', function(e) {
+window.addEventListener('keydown', function(e) {
     if (e.key == 'ArrowUp' || e.key == 'w') keyIn.up = true;
     else if (e.key == 'ArrowDown' || e.key == 's') keyIn.down = true;
     else if (e.key == 'ArrowLeft' || e.key == 'a') keyIn.left = true;
@@ -166,7 +176,7 @@ plot.addEventListener('keydown', function(e) {
     else if (e.key == 'Escape') keyIn.escape = true;
 });
 
-plot.addEventListener('keyup', function(e) {
+window.addEventListener('keyup', function(e) {
     if (e.key == 'ArrowUp' || e.key == 'w') keyIn.up = false;
     else if (e.key == 'ArrowDown' || e.key == 's') keyIn.down = false;
     else if (e.key == 'ArrowLeft' || e.key == 'a') keyIn.left = false;
@@ -180,11 +190,24 @@ plot.addEventListener('keyup', function(e) {
 timer = setInterval(access, 50);
 
 function access() {
-    if (menuState = 1) game();
+    if (menuState == 1) game();
     draw();
 }
 
 function game() {
+    //update player position
+    if (keyIn.up) {
+        if (pos.v < 5) pos.v++;
+    } else if (pos.v > 0) pos.v /= 2;
+    if (keyIn.right) pos.dir += 0.1;
+    if (keyIn.left) pos.dir -= 0.1;
+    pos.x += pos.v * Math.cos(pos.dir);
+    pos.y += pos.v * Math.sin(pos.dir);
+    //update entity position
+    //update projectile position
+    //calculate collisions/attacks
+    //check health to see if dead
+    //check score to see if it's time to upgrade
 }
 
 function draw() {
@@ -196,6 +219,10 @@ function draw() {
         ctx.fillStyle = 'rgb(100, 219, 45)';
         ctx.font = '60px monospaced';
         ctx.fillText("--Rogue--", 190 + 10 * Math.cos(tickCount/10), 150 + 5 * Math.sin(tickCount/5));
+    } else if (menuState == 1) {
+        // temporary placeholder
+        ctx.fillStyle = 'rgb(200, 0, 250)';
+        ctx.fillRect(pos.x + 320, pos.y + 160, 3, 3);
     }
 
     for (var i = 0; i < buttons.length; i++) 
