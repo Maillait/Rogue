@@ -1,8 +1,4 @@
 // Class defenitions
-class UI {
-
-}
-
 class Button {
     pageID = 0;
     visible = false;
@@ -15,7 +11,7 @@ class Button {
     fontSize = 30;
     borderWidth = 5;
 
-    constructor(x, y, width, height, text, pageID, functionality) {
+    constructor(x, y, width, height, text, pageID, functionality, fontSize, borderWidth) {
         this.x = x;
         this.y = y;
         this.func = functionality;
@@ -23,6 +19,8 @@ class Button {
         this.height = height;
         this.text = text;
         this.pageID = pageID;
+        this.fontSize = fontSize;
+        this.borderWidth = borderWidth;
     }
 
     drawButton() {
@@ -34,11 +32,6 @@ class Button {
         ctx.font = `${this.fontSize}px monospace`;
         ctx.fillText(this.text, this.x - ctx.measureText(this.text).width/2, this.y + this.fontSize / 3);
         this.visible = true;
-    }
-
-    setStyle(borderWidth, fontSize) {
-        this.borderWidth = borderWidth;
-        this.fontSize = fontSize;
     }
 
     inBounds(xpos, ypos) {
@@ -115,21 +108,37 @@ class Entity {
 
 }
 
+class keys {
+    up = false;
+    down = false;
+    left = false;
+    right = false;
+    space = false;
+    escape = false;
+    q = false;
+    e = false;
+}
+
 //setting up some vars for the canvas
 const plot = document.getElementById("plot");
 const ctx = plot.getContext("2d");
 
 const buttons = [
-    new Button(320, 240, 400, 45, "Play Rogue", 0, "PlayGame"), 
-    new Button(320, 310, 400, 45, "Exit Game", 0, "Close")
+    new Button(320, 240, 400, 45, "Play Rogue", 0, "PlayGame", 30, 5), 
+    new Button(320, 310, 400, 45, "Exit Game", 0, "Close", 30, 5), 
+    new Button(50, 30, 60, 20, "Quit", 1, "LoadRunMenu", 15, 5)
 ];
 
-var menuState = 0;
+let menuState = 0;
+let running = true;
+let tickCount = 0;
 
-document.getElementById("plot").addEventListener('click', function(e) {
+let keyIn = new keys();
+
+plot.addEventListener('click', function(e) {
     let func = "NA";
     for (let i = 0; i < buttons.length; i++) 
-        if (buttons.at(i).inBounds(e.clientX, e.clientY) == true && buttons.at(i).visible == true) {
+        if (buttons.at(i).inBounds(e.clientX -plot.getBoundingClientRect().left, e.clientY - plot.getBoundingClientRect().top) == true && buttons.at(i).visible == true) {
             func = buttons.at(i).func;
             break;
         }
@@ -139,38 +148,59 @@ document.getElementById("plot").addEventListener('click', function(e) {
             break;
         case "Close":
             break;
+        case "LoadRunMenu":
+            menuState = 0;
+            break;
         default:
     };
 });
 
+plot.addEventListener('keydown', function(e) {
+    if (e.key == 'ArrowUp' || e.key == 'w') keyIn.up = true;
+    else if (e.key == 'ArrowDown' || e.key == 's') keyIn.down = true;
+    else if (e.key == 'ArrowLeft' || e.key == 'a') keyIn.left = true;
+    else if (e.key == 'ArrowRight' || e.key == 'd') keyIn.right = true;
+    else if (e.key == ' ') keyIn.space = true;
+    else if (e.key == 'e') keyIn.e = true;
+    else if (e.key == 'q') keyIn.q = true;
+    else if (e.key == 'Escape') keyIn.escape = true;
+});
 
-access();
+plot.addEventListener('keyup', function(e) {
+    if (e.key == 'ArrowUp' || e.key == 'w') keyIn.up = false;
+    else if (e.key == 'ArrowDown' || e.key == 's') keyIn.down = false;
+    else if (e.key == 'ArrowLeft' || e.key == 'a') keyIn.left = false;
+    else if (e.key == 'ArrowRight' || e.key == 'd') keyIn.right = false;
+    else if (e.key == ' ') keyIn.space = false;
+    else if (e.key == 'e') keyIn.e = false;
+    else if (e.key == 'q') keyIn.q = false;
+    else if (e.key == 'Escape') keyIn.escape = false;
+});
+
+timer = setInterval(access, 50);
 
 function access() {
-    ctx.fillStyle = 'black';
-    ctx.fillRect(3, 3, 634, 354);
-
-    for (var i = 0; i < buttons.length; i++) 
-        if (buttons.at(i).pageID == menuState) buttons.at(i).drawButton();
-        else buttons.at(i).visible = false;
-    if (menuState == 0) {
-        ctx.fillStyle = 'rgb(100, 219, 45)';
-        ctx.font = '60px monospaced';
-        ctx.fillText("--Rogue--", 190, 150);
-    }
-    
+    if (menuState = 1) game();
+    draw();
 }
 
 function game() {
 }
 
-function shop() {
-}
+function draw() {
+    ctx.fillStyle = 'black';
+    ctx.fillRect(3, 3, 634, 354);
 
-function upgrade() {
-}
+    
+    if (menuState == 0) {
+        ctx.fillStyle = 'rgb(100, 219, 45)';
+        ctx.font = '60px monospaced';
+        ctx.fillText("--Rogue--", 190 + 10 * Math.cos(tickCount/10), 150 + 5 * Math.sin(tickCount/5));
+    }
 
-function draw(x, y, angle) {
-    ctx.fillStyle = 'rgb(100, 219, 45)';
-    ctx.fillRect(280, 180, 40, 40);
+    for (var i = 0; i < buttons.length; i++) 
+        if (buttons.at(i).pageID == menuState) buttons.at(i).drawButton();
+        else buttons.at(i).visible = false;
+
+    tickCount++;
 }
