@@ -322,17 +322,17 @@ function game() {
     if (keyIn.up || keyIn.w) {
         if (pos.v < 10) pos.v++;
     } else if (pos.v > 0) pos.v /= 2;
-    if (keyIn.right || keyIn.d) pos.dir += 0.1;
-    if (keyIn.left || keyIn.a) pos.dir -= 0.1;
+    if (keyIn.right || keyIn.d) pos.dir -= 0.1;
+    if (keyIn.left || keyIn.a) pos.dir += 0.1;
     pos.x += pos.v * Math.cos(pos.dir); + pos.kb + Math.cos(pos.kbdir);
     pos.y += pos.v * Math.sin(pos.dir); + pos.kb * Math.sin(pos.kbdir);
 
     //update entity position/ add Entities
     let entityType = Math.floor(Math.sqrt(Math.random() * tickCount/200)) % 5;
     let angle = Math.random() * 2 * Math.PI;
-    let entityx = 300 * Math.cos(angle); 
+    let entityx = 400 * Math.cos(angle); 
     if (Math.random() > 0.5) entityx = entityx - 2 * Math.cos(angle);
-    let entityy = 300 * Math.sin(angle); 
+    let entityy = 400 * Math.sin(angle); 
     if (Math.random() > 0.5) entityy = entityy - 2 * Math.sin(angle);
     
     if (Math.random() > 0.98 && entities.length < 50) entities.push(new Entity(entityx, entityy, Math.atan2(pos.y - entityy, pos.x - entityx), enemyTypes[entityType], 2));

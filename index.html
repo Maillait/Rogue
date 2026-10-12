@@ -2,10 +2,25 @@
 <head>
     <title>Rogue</title>
     <meta name="viewport" content="width=device-width, initial-scale=.7, user-scalable=yes">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div1 style="top:calc(25vh - 250px);">
+        <canvas id="plot" width="640" height="360" style="border:2px solid black;"></canvas>
+    </div1>
+    <div style="top:calc(50vh + 50px);">
+        <header style="font:40px solid black;text-align:center;width:700px">Rogue</header>
+        <text style="font:20px solid black;text-align:center;width:600px;">
+            <b>Controls</b><br>
+            Use the arrow keys, or WASD to move your character about the screen.<br>
+            Use q, e, and space to attack and use abilities.<br>
+            Survive as long as you can and have fun!!<br>
+            <br>
+            <b>About</b><br>
+            You are now the final unzombified duck. Beat up your now-rogue brethren to stop them from killing you.
+        </text>
+    </div>
 
-    <canvas id="plot" width="640" height="360" style="border:2px solid black;"></canvas>
     <div style="visibility:hidden"><img id="sprites" src="SpriteSheet.png"></div>
     <script src = "main.js"></script> 
 
