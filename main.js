@@ -134,10 +134,24 @@ class Entity {
         while (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > Math.PI) this.direction -= 2 * Math.PI;
         while (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -Math.PI) this.direction += 2 * Math.PI;
 
+        this.kb /= 3;
+
         switch (this.type) {
             case "punch":
-                if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.1;
-                else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.1;
+                if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.2;
+                else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.2;
+                if (tickCount < 900) this.v = 3;
+                else if (tickCount < 3000) this.v = tickCount/300;
+                else this.v = 10;
+
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36) {
+                    hp -= 10;
+                    pos.kbdir = Math.atan2(pos.kb * Math.sin(pos.kbdir) + 5 * Math.sin(this.direction), pos.kb * Math.cos(pos.kbdir) + 5 * Math.cos(this.direction));
+                    pos.kb += 5;
+                    this.kbdir = Math.atan2(this.kb * Math.sin(this.kbdir) + 20 * Math.sin(-this.direction), this.kb * Math.cos(this.kbdir) + 20 * Math.cos(-this.direction));
+                    this.kb += 20
+                    this.hp -= meleeDamage;
+                }
                 break;
             case "gunman":
                 if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) > 250) {
@@ -156,6 +170,12 @@ class Entity {
                     if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < 2 && this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0) this.direction += 0.2;
                     else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > -2) this.direction += 0.2;
                     this.v = 3;
+                }
+
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36) {
+                    this.kbdir = Math.atan2(this.kb * Math.sin(this.kbdir) + 20 * Math.sin(-this.direction), this.kb * Math.cos(this.kbdir) + 20 * Math.cos(-this.direction));
+                    this.kb += 20
+                    this.hp -= meleeDamage;
                 }
                 
                 break;
@@ -177,13 +197,63 @@ class Entity {
                     else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > -2) this.direction += 0.2;
                     this.v = 3;
                 }
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36) {
+                    this.kbdir = Math.atan2(this.kb * Math.sin(this.kbdir) + 20 * Math.sin(-this.direction), this.kb * Math.cos(this.kbdir) + 20 * Math.cos(-this.direction));
+                    this.kb += 20
+                    this.hp -= meleeDamage;
+                }
 
                 break;
             case "healer":
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) > 200) {
+                    if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.1;
+                    else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.1;
+                    this.v = 2;
+                } else if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) > 100) {
+                    if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.1;
+                    else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.1;
+                    this.v = 0;
+                    if (tickCount - this.lastAttack > this.cooldown) {
+                        projectiles.push(new Projectile(this.x, this.y, 10, Math.random() * 2 * Math.PI, 6, "health", 'rgb(44, 189, 189)', "Enemy"));
+                        this.lastAttack = tickCount;
+                    }
+                } else {
+                    if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < 2 && this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0) this.direction += 0.2;
+                    else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > -2) this.direction += 0.2;
+                    this.v = 2;
+                }
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36) {
+                    this.kbdir = Math.atan2(this.kb * Math.sin(this.kbdir) + 20 * Math.sin(-this.direction), this.kb * Math.cos(this.kbdir) + 20 * Math.cos(-this.direction));
+                    this.kb += 20
+                    this.hp -= meleeDamage;
+                }
                 
                 break;
             case "tank":
-                
+                if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.1;
+                else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.1;
+                this.v = 1;
+                if (tickCount - this.lastAttack > this.cooldown) {
+                    if (Math.random() > 0.5) {
+                        projectiles.push(new Projectile(this.x, this.y, 10, this.direction, 10, "grenade", 'rgb(106, 153, 45)', "Enemy"));
+                        projectiles.push(new Projectile(this.x, this.y, 15, this.direction, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
+                        projectiles.push(new Projectile(this.x, this.y, 15, this.direction + Math.PI/6, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
+                        projectiles.push(new Projectile(this.x, this.y, 15, this.direction - Math.PI/6, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
+                        this.lastAttack = tickCount;
+                    } 
+                    if (Math.random() > 0.5 && entities.length < 500) {
+                        if (Math.random() < 0.3333333) entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "punch", 0)); 
+                        else if (Math.random < 0.5) entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "gunman", 0)); 
+                        else entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "grenade", 0)); 
+                        this.lastAttack = tickCount;
+                    }
+                }
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36) {
+                    this.kbdir = Math.atan2(this.kb * Math.sin(this.kbdir) + 2 * Math.sin(-this.direction), this.kb * Math.cos(this.kbdir) + 2 * Math.cos(-this.direction));
+                    this.kb += 2
+                    this.hp -= meleeDamage;
+                }
+
                 break;
         }
     }
@@ -260,6 +330,11 @@ let tickCount = 0;
 let keyIn = new keys();
 let pos = new position();
 
+let hp = 500;
+let score = 0;
+let scoreChecks = 0;
+let meleeDamage = 10;
+
 plot.addEventListener('click', function(e) {
     let func = "NA";
     for (let i = 0; i < buttons.length; i++) 
@@ -322,10 +397,11 @@ function game() {
     if (keyIn.up || keyIn.w) {
         if (pos.v < 10) pos.v++;
     } else if (pos.v > 0) pos.v /= 2;
+    pos.kb /= 3;
     if (keyIn.right || keyIn.d) pos.dir -= 0.1;
     if (keyIn.left || keyIn.a) pos.dir += 0.1;
-    pos.x += pos.v * Math.cos(pos.dir); + pos.kb + Math.cos(pos.kbdir);
-    pos.y += pos.v * Math.sin(pos.dir); + pos.kb * Math.sin(pos.kbdir);
+    pos.x += pos.v * Math.cos(pos.dir) + pos.kb * Math.cos(pos.kbdir);
+    pos.y += pos.v * Math.sin(pos.dir) + pos.kb * Math.sin(pos.kbdir);
 
     //update entity position/ add Entities
     let entityType = Math.floor(Math.sqrt(Math.random() * tickCount/200)) % 5;
@@ -335,15 +411,89 @@ function game() {
     let entityy = 400 * Math.sin(angle); 
     if (Math.random() > 0.5) entityy = entityy - 2 * Math.sin(angle);
     
-    if (Math.random() > 0.98 && entities.length < 50) entities.push(new Entity(entityx, entityy, Math.atan2(pos.y - entityy, pos.x - entityx), enemyTypes[entityType], 2));
-    for (let i = 0; i < entities.length; i++) entities.at(i).step();
+    if (Math.random() > 0.98 && entities.length < 200) entities.push(new Entity(entityx, entityy, Math.atan2(pos.y - entityy, pos.x - entityx), enemyTypes[entityType], 2));
+    for (let i = 0; i < entities.length; i++) {
+        entities.at(i).step();
+        if (entities.at(i).hp <= 0) {
+            switch (entities.at(i).type) {
+                case "health":
+                    score += 5;
+                    break;
+                case "tank":
+                    score += 50;
+                    break;
+                default:
+                score += 4;
+            }
+            entities.splice(i, 1);
+        }
+    }
 
-    //update projectile position +
-    for (let i = 0; i < projectiles.length; i++) projectiles.at(i).step();
+    //update projectile position + Character-particle interactions
+    for (let i = 0; i < projectiles.length; i++) {
+        projectiles.at(i).step();
+        if (projectiles.at(i).source == "Enemy") {
+            if (projectiles.at(i).effect == "Health") {
+                let deleted = false;
+                for (let o = 0; o < entities.length; o++) {
+                    if (Math.sqrt((projectiles.at(i).x - entities.at(o).x) * (projectiles.at(i).x - entities.at(o).x) + (projectiles.at(i).y - entities.at(o).y) * (projectiles.at(i).y - entities.at(o).y)) < projectiles.at(i).size + 16) {
+                        entities.at(o).hp += 10;
+                        projectiles.splice(i, 1);
+                        i--;
+                        deleted = true;
+                        break;
+                    }
+                }
+                if (!deleted && Math.sqrt((projectiles.at(i).x - pos.x) * (projectiles.at(i).x - pos.x) + (projectiles.at(i).y - pos.y) * (projectiles.at(i).y - pos.y)) > 500) {
+                    projectiles.splice(i, 1);
+                    i--;
+                }
+            } else if (Math.sqrt((projectiles.at(i).x - pos.x) * (projectiles.at(i).x - pos.x) + (projectiles.at(i).y - pos.y) * (projectiles.at(i).y - pos.y)) < projectiles.at(i).size + 24) {
+                switch (projectiles.at(i).effect) {
+                    case "arrow":
+                        hp -= 3;
+                        pos.kbdir = Math.atan2(pos.kb * Math.sin(pos.kbdir) + Math.sin(projectiles.at(i).direction), pos.kb * Math.cos(pos.kbdir) + Math.cos(projectiles.at(i).direction));
+                        pos.kb += 1;
+                        projectiles.splice(i, 1);
+                        i--;
+                        break;
+                    case "grenade":
+                        hp -= 10;
+                        pos.kb += 10;
+                        pos.kbdir = Math.atan2(pos.kb * Math.sin(pos.kbdir) + 10 * Math.sin(projectiles.at(i).direction), pos.kb * Math.cos(pos.kbdir) + 10 * Math.cos(projectiles.at(i).direction));
+                        projectiles.splice(i, 1);
+                        i--;
+                        break;
+                }
+            } else if (Math.sqrt((projectiles.at(i).x - pos.x) * (projectiles.at(i).x - pos.x) + (projectiles.at(i).y - pos.y) * (projectiles.at(i).y - pos.y)) > 500) {
+                projectiles.splice(i, 1);
+                i--;
+            }
+        } else if (projectiles.at(i).source == "Player") {
+            let deleted = false;
+            for (let o = 0; o < entities.length; o++) {
+                if (Math.sqrt((projectiles.at(i).x - entities.at(o).x) * (projectiles.at(i).x - entities.at(o).x) + (projectiles.at(i).y - entities.at(o).y) * (projectiles.at(i).y - entities.at(o).y)) < projectiles.at(i).size + 16) {
+                    switch (projectiles.at(i).effect) {
+                        // no player projectiles yet...
+                    }
+                    projectiles.splice(i, 1);
+                    i--;
+                    deleted = true;
+                    break;
+                }
+            } if (!deleted && Math.sqrt((projectiles.at(i).x - pos.x) * (projectiles.at(i).x - pos.x) + (projectiles.at(i).y - pos.y) * (projectiles.at(i).y - pos.y)) > 500) {
+                projectiles.splice(i, 1);
+                i--;
+            }
+        }
 
-    //calculate collisions/attacks
-    //check health to see if dead
-    //check score to see if it's time to upgrade
+    }
+
+    if (hp <= 0) menuState = 5;
+    else if (score - scoreChecks * scoreChecks * 20 > 20) {
+        menuState = 4;
+        scoreChecks++;
+    }
 }
 
 function draw() {
