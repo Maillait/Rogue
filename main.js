@@ -106,18 +106,18 @@ class Entity {
         switch (type) {
             case "punch":
                 this.cooldown = 4;
-                this.hp = 200;
+                this.hp = 100;
                 break;
             case "gunman":
                 this.cooldown = 20;
-                this.hp = 100;
+                this.hp = 50;
                 break;
             case "grenade":
                 this.cooldown = 40;
-                this.hp = 200;
+                this.hp = 100;
                 break;
             case "healer":
-                this.cooldown = 100;
+                this.cooldown = 5;
                 this.hp = 500;
                 break;
             case "tank":
@@ -144,13 +144,15 @@ class Entity {
                 else if (tickCount < 3000) this.v = tickCount/300;
                 else this.v = 10;
 
-                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36) {
-                    hp -= 10;
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
+                    this.kbdir = this.direction + Math.PI;
+                    this.kb += punch * 4 + 16;
+                    this.hp -= punch * 5 + 10;
+                } else if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36 && tickCount - this.lastAttack > this.cooldown) {
+                    this.lastAttack = tickCount;
                     pos.kbdir = Math.atan2(pos.kb * Math.sin(pos.kbdir) + 5 * Math.sin(this.direction), pos.kb * Math.cos(pos.kbdir) + 5 * Math.cos(this.direction));
                     pos.kb += 5;
-                    this.kbdir = Math.atan2(this.kb * Math.sin(this.kbdir) + 20 * Math.sin(-this.direction), this.kb * Math.cos(this.kbdir) + 20 * Math.cos(-this.direction));
-                    this.kb += 20
-                    this.hp -= meleeDamage;
+                    hp -= 10;
                 }
                 break;
             case "gunman":
@@ -172,10 +174,10 @@ class Entity {
                     this.v = 3;
                 }
 
-                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36) {
-                    this.kbdir = Math.atan2(this.kb * Math.sin(this.kbdir) + 20 * Math.sin(-this.direction), this.kb * Math.cos(this.kbdir) + 20 * Math.cos(-this.direction));
-                    this.kb += 20
-                    this.hp -= meleeDamage;
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
+                    this.kbdir = this.direction + Math.PI;
+                    this.kb += punch * 4 + 16;
+                    this.hp -= punch * 5 + 10;
                 }
                 
                 break;
@@ -197,10 +199,10 @@ class Entity {
                     else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > -2) this.direction += 0.2;
                     this.v = 3;
                 }
-                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36) {
-                    this.kbdir = Math.atan2(this.kb * Math.sin(this.kbdir) + 20 * Math.sin(-this.direction), this.kb * Math.cos(this.kbdir) + 20 * Math.cos(-this.direction));
-                    this.kb += 20
-                    this.hp -= meleeDamage;
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
+                    this.kbdir = this.direction + Math.PI;
+                    this.kb += punch * 4 + 16;
+                    this.hp -= punch * 5 + 10;
                 }
 
                 break;
@@ -222,10 +224,10 @@ class Entity {
                     else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > -2) this.direction += 0.2;
                     this.v = 2;
                 }
-                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36) {
-                    this.kbdir = Math.atan2(this.kb * Math.sin(this.kbdir) + 20 * Math.sin(-this.direction), this.kb * Math.cos(this.kbdir) + 20 * Math.cos(-this.direction));
-                    this.kb += 20
-                    this.hp -= meleeDamage;
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
+                    this.kbdir = this.direction + Math.PI;
+                    this.kb += punch * 4 + 16;
+                    this.hp -= punch * 5 + 10;
                 }
                 
                 break;
@@ -248,10 +250,10 @@ class Entity {
                         this.lastAttack = tickCount;
                     }
                 }
-                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36) {
-                    this.kbdir = Math.atan2(this.kb * Math.sin(this.kbdir) + 2 * Math.sin(-this.direction), this.kb * Math.cos(this.kbdir) + 2 * Math.cos(-this.direction));
-                    this.kb += 2
-                    this.hp -= meleeDamage;
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
+                    this.kbdir = this.direction + Math.PI;
+                    this.kb += punch * 4 + 16;
+                    this.hp -= punch * 5 + 10;
                 }
 
                 break;
@@ -317,15 +319,22 @@ const enemyTypes = [
 ];
 const buttons = [
     new Button(320, 240, 400, 45, "Play Rogue", 0, "PlayGame", 30, 5), 
-    new Button(320, 310, 400, 45, "Exit Game", 0, "Close", 30, 5), 
-    new Button(50, 30, 60, 20, "Quit", 1, "LoadRunMenu", 15, 5)
+    new Button(50, 30, 60, 20, "Quit", 1, "LoadRunMenu", 15, 5),
+    new Button(320, 150, 400, 45, "Resume Game", 2, "ResumeGame", 30, 5),
+    new Button(320, 220, 400, 45, "Quit Game", 2, "ExitGame", 30, 5),
+    new Button(120, 330, 180, 20, "Pick 1", 4, "op1", 20, 5),
+    new Button(320, 330, 180, 20, "Pick 2", 4, "op2", 20, 5),
+    new Button(520, 330, 180, 20, "Pick 3", 4, "op3", 20, 5),
+    new Button(320, 300, 400, 45, "Continue", 5, "ExitGame", 30, 5),
 ];
 let entities = [];
 let projectiles = [];
 
+let specials = [];
+
 let menuState = 0;
-let running = true;
 let tickCount = 0;
+let saveTime = 0;
 
 let keyIn = new keys();
 let pos = new position();
@@ -333,7 +342,17 @@ let pos = new position();
 let hp = 500;
 let score = 0;
 let scoreChecks = 0;
-let meleeDamage = 10;
+let punchActiveUntil = 0;
+let lastBullet = 0;
+
+let punch = 1;
+let gun = 1;
+let speed = 1;
+let maxhp = 500;
+let defense = 0;
+let regen = 0;
+let punchCooldown = 20;
+let gunCooldown = 10;
 
 plot.addEventListener('click', function(e) {
     let func = "NA";
@@ -345,10 +364,18 @@ plot.addEventListener('click', function(e) {
     switch(func) {
         case "PlayGame":
             menuState = 1;
-            break;
-        case "Close":
+            tickCount = 0;
             break;
         case "LoadRunMenu":
+            menuState = 2;
+            saveTime = tickCount;
+            break;
+        case "ResumeGame":
+            menuState = 1;
+            tickCount = saveTime;
+            break;
+        case "ExitGame":
+            resetDefault();
             menuState = 0;
             break;
         default:
@@ -392,14 +419,43 @@ function access() {
     draw();
 }
 
+function resetDefault() {
+    punch = 1;
+    gun = 1;
+    speed = 1;
+    maxhp = 500;
+    defense = 0;
+    regen = 0;
+    hp = 500;
+    score = 0;
+    scoreChecks = 0;
+    tickCount = 0;
+    entities = [];
+    projectiles = [];
+    specials = [];
+    punchCooldown = 5;
+    gunCooldown = 8;
+    lastBullet = 0;
+    pos = new position();
+}
+
 function game() {
     //update player position +
     if (keyIn.up || keyIn.w) {
-        if (pos.v < 10) pos.v++;
-    } else if (pos.v > 0) pos.v /= 2;
+        if (pos.v < 4 * speed + 6) pos.v += 2 * speed;
+    } else if (keyIn.down || keyIn.s) {
+        if (pos.v > -2 * speed - 3) pos.v -= 2 * speed;
+    } else if (pos.v != 0) pos.v /= 2;
     pos.kb /= 3;
     if (keyIn.right || keyIn.d) pos.dir -= 0.1;
     if (keyIn.left || keyIn.a) pos.dir += 0.1;
+
+    if (keyIn.q && tickCount - punchActiveUntil > punchCooldown) punchActiveUntil = tickCount + 2;
+    if (keyIn.e && tickCount - lastBullet > gunCooldown) {
+        lastBullet = tickCount;
+        projectiles.push(new Projectile(pos.x, pos.y, pos.v + gun + 6, pos.dir, 5 + gun * 3, "bullet", 'rgb(233, 0, 0)', "Player"));
+    }
+
     pos.x += pos.v * Math.cos(pos.dir) + pos.kb * Math.cos(pos.kbdir);
     pos.y += pos.v * Math.sin(pos.dir) + pos.kb * Math.sin(pos.kbdir);
 
@@ -411,7 +467,7 @@ function game() {
     let entityy = 400 * Math.sin(angle); 
     if (Math.random() > 0.5) entityy = entityy - 2 * Math.sin(angle);
     
-    if (Math.random() > 0.98 && entities.length < 200) entities.push(new Entity(entityx, entityy, Math.atan2(pos.y - entityy, pos.x - entityx), enemyTypes[entityType], 2));
+    if (Math.random() > 0.97 && entities.length < 200) entities.push(new Entity(entityx, entityy, Math.atan2(pos.y - entityy, pos.x - entityx), enemyTypes[entityType], 2));
     for (let i = 0; i < entities.length; i++) {
         entities.at(i).step();
         if (entities.at(i).hp <= 0) {
@@ -473,9 +529,7 @@ function game() {
             let deleted = false;
             for (let o = 0; o < entities.length; o++) {
                 if (Math.sqrt((projectiles.at(i).x - entities.at(o).x) * (projectiles.at(i).x - entities.at(o).x) + (projectiles.at(i).y - entities.at(o).y) * (projectiles.at(i).y - entities.at(o).y)) < projectiles.at(i).size + 16) {
-                    switch (projectiles.at(i).effect) {
-                        // no player projectiles yet...
-                    }
+                    entities.at(o).hp -= gun * 10 + 40;
                     projectiles.splice(i, 1);
                     i--;
                     deleted = true;
@@ -489,8 +543,10 @@ function game() {
 
     }
 
-    if (hp <= 0) menuState = 5;
-    else if (score - scoreChecks * scoreChecks * 20 > 20) {
+    if (hp <= 0) {
+        menuState = 5;
+        saveTime = tickCount;
+    } else if (score - scoreChecks * scoreChecks * 20 > 60) {
         menuState = 4;
         scoreChecks++;
     }
@@ -504,7 +560,7 @@ function draw() {
     
     if (menuState == 0) ctx.drawImage(sprites, 0, 33, 160, 52, 170 + 10 * Math.cos(tickCount/10), 100 + 5 * Math.sin(tickCount/5), 300, 100);
     else if (menuState == 1) {
-        ctx.fillStyle = 'rgb(0, 100, 0';
+        ctx.fillStyle = 'rgb(0, 100, 0)';
         for (let o = -5; o < 6; o++) {
             let x = 100 * (Math.floor(pos.x/100) + o) - pos.x;
             for (let i = -3; i < 4; i++) {
@@ -512,12 +568,61 @@ function draw() {
                 ctx.fillRect(-(x * -Math.sin(pos.dir) + y * Math.cos(pos.dir)) - 5/2 + 320, -(x * Math.cos(pos.dir) + y * Math.sin(pos.dir)) - 5/2 + 180, 5, 5);
             }
         }
+        //draw projectiles
+        for (let i = 0; i < projectiles.length; i++) projectiles.at(i).draw();
+        // draw Player
+        if (punchActiveUntil >= tickCount) {
+            ctx.fillStyle = 'rgba(223, 30, 30, 0.36)';
+            ctx.beginPath();
+            ctx.ellipse(320, 180, 48, 48, 0, 0, 2 * Math.PI);
+            ctx.fill();
+        }
         ctx.drawImage(sprites, 0, 0, 32, 32, 288, 148, 64, 64);
         //draw entities
         for (let i = 0; i < entities.length; i++) entities.at(i).draw();
-        //draw projectiles
-        for (let i = 0; i < projectiles.length; i++) projectiles.at(i).draw();
-    } // add various menus/upgrades
+
+        ctx.fillStyle = 'rgb(100, 219, 45)';
+        ctx.font = "20px monospaced";
+        ctx.fillText("Score : " + score, 500, 30);
+
+        ctx.fillStyle = 'rgb(63, 1, 1)';
+        ctx.fillRect(20, 320, 600, 20);
+
+        ctx.fillStyle = 'rgb(192, 7, 7)';
+        ctx.fillRect(20, 320, hp * 600 / maxhp, 20);
+
+        ctx.fillStyle = 'rgb(2, 2, 2)';
+        ctx.font = "15px monospaced";
+        ctx.fillText("hp : " + hp, 25, 335);
+        
+    } else if (menuState == 2) {
+        ctx.fillStyle = 'rgb(0, 100, 0)';
+        for (let o = -5; o < 6; o++) {
+            let x = 100 * (Math.floor(pos.x/100) + o) - pos.x;
+            for (let i = -3; i < 4; i++) {
+                let y = 100 * (Math.floor(pos.y/100) + i) - pos.y;
+                ctx.fillRect(-(x * -Math.sin(pos.dir) + y * Math.cos(pos.dir)) - 5/2 + 320, -(x * Math.cos(pos.dir) + y * Math.sin(pos.dir)) - 5/2 + 180, 5, 5);
+            }
+        }
+    } else if (menuState == 4) {
+        ctx.fillStyle = 'rgb(0, 100, 0)';
+        for (let o = -5; o < 6; o++) {
+            let x = 100 * (Math.floor(pos.x/100) + o) - pos.x;
+            for (let i = -3; i < 4; i++) {
+                let y = 100 * (Math.floor(pos.y/100) + i) - pos.y;
+                ctx.fillRect(-(x * -Math.sin(pos.dir) + y * Math.cos(pos.dir)) - 5/2 + 320, -(x * Math.cos(pos.dir) + y * Math.sin(pos.dir)) - 5/2 + 180, 5, 5);
+            }
+        }
+        // decide 3 options...
+        // draw 3 Options...
+    } else if (menuState == 5) {
+        ctx.fillStyle = 'rgb(1, 179, 1)';
+        ctx.font = "40px monospaced";
+        ctx.fillText("You Died...", 230, 100);
+        ctx.font = "20px monospaced";
+        ctx.fillText("Score : " + score, 280, 130);
+        ctx.fillText("Time : " + saveTime/20 + " seconds", 240, 160);
+    }
 
     for (var i = 0; i < buttons.length; i++) 
         if (buttons.at(i).pageID == menuState) buttons.at(i).drawButton();
