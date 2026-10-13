@@ -1,0 +1,4 @@
+This is a basic roguelike.
+You run around as a duck, kill zombified ducks, and upgrade yourself. 
+Not that all that's in place yet... You currently just run around and get killed.
+Have fun!! and don't die too quick...
