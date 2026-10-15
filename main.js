@@ -305,6 +305,106 @@ class keys {
     d = false;
 }
 
+class upgrade {
+    name;
+    level = 0;
+    maxLevel;
+    type;
+
+    constructor (name, maxLevel, type) {
+        this.name = name;
+        this.maxLevel = maxLevel;
+        this.type = type;
+    }
+
+    upgrade () {
+        if (!this.maxed()) level++;
+
+        // basic
+        // basic
+        // advanced
+        // basic
+        // advanced
+        // basic
+        // special
+        // basic
+        // advanced
+        // basic
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else advanced
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else advanced
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else advanced
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else advanced
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else advanced
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else advanced
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // if 3 viable; specialUp/gunup/punchup else basic
+        // beat game, keep playing option
+
+        switch (this.name) {
+            case "punch":
+                punch++;
+                break;
+            case "gun":
+                gun++;
+                break;
+            case "speed":
+                speed++;
+                break;
+            case "maxhp":
+                maxhp += 200;
+                hp += 200;
+                break;
+            case "defense":
+                defense++;
+                break;
+            case "regen":
+                regen += 10;
+                break;
+            case "atkspeed":
+                punchCooldown -= 3;
+                gunCooldown -= 1.5;
+                break;
+            case "multiBullet":
+                gun = 7;
+                break;
+            case "megaPunch":
+                punch = 7;
+                break;
+            case "dash":
+                special = 1;
+                break;
+            case "tp":
+                special = 2;
+                break;
+            case "laser":
+                special = 3;
+                break;
+            case "shield":
+                special = 4;
+                specialStrength++;
+                break;
+            default:
+                console.log("Error: upgrade not found");
+        }
+    }
+
+    maxed () {
+        return level >= maxLevel;
+    }
+}
+
 //setting up some vars for the canvas
 const plot = document.getElementById("plot");
 const ctx = plot.getContext("2d");
@@ -327,6 +427,21 @@ const buttons = [
     new Button(520, 330, 180, 20, "Pick 3", 4, "op3", 20, 5),
     new Button(320, 300, 400, 45, "Continue", 5, "ExitGame", 30, 5),
 ];
+const allUps = [
+new upgrade("punch", 5, "basic"),
+new upgrade("gun", 5, "basic"),
+new upgrade("speed", 5, "basic"),
+new upgrade("maxhp", 5, "basic"),
+new upgrade("defense", 3, "advanced"),
+new upgrade("regen", 3, "advanced"),
+new upgrade("atkspeed", 3, "advanced"),
+new upgrade("multiBullet", 1, "advanced"), // upgrades gun
+new upgrade("megaPunch", 1, "advanced"), // upgrades punch
+new upgrade("dash", 2, "special"), // special (spacebar)
+new upgrade("tp", 2, "special"), // special (spacebar) teleports you to where your tp bullet 'dies'
+new upgrade("laser", 2, "special"), // special (spacebar) fast weak gun (compliments base gun)
+new upgrade("shield", 2, "special") // special (spacebar) acts as a shield, no cooldown, but you cannot attack
+];
 let entities = [];
 let projectiles = [];
 
@@ -345,6 +460,8 @@ let scoreChecks = 0;
 let punchActiveUntil = 0;
 let lastBullet = 0;
 
+let ups = [];
+
 let punch = 1;
 let gun = 1;
 let speed = 1;
@@ -353,6 +470,8 @@ let defense = 0;
 let regen = 0;
 let punchCooldown = 20;
 let gunCooldown = 10;
+let special = 0;
+let specialStrength = 0;
 
 plot.addEventListener('click', function(e) {
     let func = "NA";
@@ -377,6 +496,18 @@ plot.addEventListener('click', function(e) {
         case "ExitGame":
             resetDefault();
             menuState = 0;
+            break;
+        case "op1":
+            menuState = 1;
+            bullets.at(ups.at(0)).upgrade();
+            break;
+        case "op2":
+            menuState = 1;
+            bullets.at(ups.at(1)).upgrade();
+            break;
+        case "op3":
+            menuState = 1;
+            bullets.at(ups.at(2)).upgrade();
             break;
         default:
     };
