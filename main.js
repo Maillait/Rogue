@@ -1,4 +1,4 @@
-// Class defenitions
+// Classes
 class Button {
     pageID = 0;
     visible = false;
@@ -175,7 +175,7 @@ class Entity {
                 }
 
                 if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
-                    this.kbdir = this.direction + Math.PI;
+                    this.kbdir = Math.atan2(pos.y - this.y, pos.x - this.x) + Math.PI;
                     this.kb += punch * 4 + 16;
                     this.hp -= punch * 5 + 10;
                 }
@@ -200,7 +200,7 @@ class Entity {
                     this.v = 3;
                 }
                 if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
-                    this.kbdir = this.direction + Math.PI;
+                    this.kbdir = Math.atan2(pos.y - this.y, pos.x - this.x) + Math.PI;
                     this.kb += punch * 4 + 16;
                     this.hp -= punch * 5 + 10;
                 }
@@ -216,7 +216,7 @@ class Entity {
                     else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.1;
                     this.v = 0;
                     if (tickCount - this.lastAttack > this.cooldown) {
-                        projectiles.push(new Projectile(this.x, this.y, 10, Math.random() * 2 * Math.PI, 6, "health", 'rgb(44, 189, 189)', "Enemy"));
+                        projectiles.push(new Projectile(this.x, this.y, 10, Math.random() * 2 * Math.PI, 6, "Health", 'rgb(44, 184, 189)', "Enemy"));
                         this.lastAttack = tickCount;
                     }
                 } else {
@@ -225,7 +225,7 @@ class Entity {
                     this.v = 2;
                 }
                 if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
-                    this.kbdir = this.direction + Math.PI;
+                    this.kbdir = Math.atan2(pos.y - this.y, pos.x - this.x) + Math.PI;
                     this.kb += punch * 4 + 16;
                     this.hp -= punch * 5 + 10;
                 }
@@ -251,7 +251,7 @@ class Entity {
                     }
                 }
                 if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
-                    this.kbdir = this.direction + Math.PI;
+                    this.kbdir = Math.atan2(pos.y - this.y, pos.x - this.x) + Math.PI;
                     this.kb += punch * 4 + 16;
                     this.hp -= punch * 5 + 10;
                 }
@@ -318,39 +318,7 @@ class upgrade {
     }
 
     upgrade () {
-        if (!this.maxed()) level++;
-
-        // basic
-        // basic
-        // advanced
-        // basic
-        // advanced
-        // basic
-        // special
-        // basic
-        // advanced
-        // basic
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else advanced
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else advanced
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else advanced
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else advanced
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else advanced
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else advanced
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // if 3 viable; specialUp/gunup/punchup else basic
-        // beat game, keep playing option
+        if (!this.maxed()) this.level++;
 
         switch (this.name) {
             case "punch":
@@ -384,12 +352,15 @@ class upgrade {
                 break;
             case "dash":
                 special = 1;
+                specialStrength++;
                 break;
             case "tp":
                 special = 2;
+                specialStrength++;
                 break;
             case "laser":
                 special = 3;
+                specialStrength++;
                 break;
             case "shield":
                 special = 4;
@@ -401,7 +372,7 @@ class upgrade {
     }
 
     maxed () {
-        return level >= maxLevel;
+        return this.level >= this.maxLevel;
     }
 }
 
@@ -422,9 +393,9 @@ const buttons = [
     new Button(50, 30, 60, 20, "Quit", 1, "LoadRunMenu", 15, 5),
     new Button(320, 150, 400, 45, "Resume Game", 2, "ResumeGame", 30, 5),
     new Button(320, 220, 400, 45, "Quit Game", 2, "ExitGame", 30, 5),
-    new Button(120, 330, 180, 20, "Pick 1", 4, "op1", 20, 5),
-    new Button(320, 330, 180, 20, "Pick 2", 4, "op2", 20, 5),
-    new Button(520, 330, 180, 20, "Pick 3", 4, "op3", 20, 5),
+    new Button(120, 220, 130, 20, "Pick 1", 4, "op1", 15, 5),
+    new Button(320, 220, 130, 20, "Pick 2", 4, "op2", 15, 5),
+    new Button(520, 220, 130, 20, "Pick 3", 4, "op3", 15, 5),
     new Button(320, 300, 400, 45, "Continue", 5, "ExitGame", 30, 5),
 ];
 const allUps = [
@@ -445,11 +416,10 @@ new upgrade("shield", 2, "special") // special (spacebar) acts as a shield, no c
 let entities = [];
 let projectiles = [];
 
-let specials = [];
-
 let menuState = 0;
 let tickCount = 0;
 let saveTime = 0;
+let lastCheck = 0;
 
 let keyIn = new keys();
 let pos = new position();
@@ -460,7 +430,39 @@ let scoreChecks = 0;
 let punchActiveUntil = 0;
 let lastBullet = 0;
 
-let ups = [];
+let ups = ["", "", ""];
+let upOps = [
+    "basic",
+    "basic",
+    "adv",
+    "basic",
+    "basic",
+    "adv",
+    "basic",
+    "special",
+    "basic",
+    "adv",
+    "basic",
+    "basic",
+    "adv",
+    "basic",
+    "basic",
+    "adv",
+    "basic",
+    "basic",
+    "adv",
+    "basic",
+    "basic",
+    "adv",
+    "basic",
+    "basic",
+    "adv",
+    "basic",
+    "basic",
+    "adv",
+    "basic",
+    "basic"
+];
 
 let punch = 1;
 let gun = 1;
@@ -499,15 +501,18 @@ plot.addEventListener('click', function(e) {
             break;
         case "op1":
             menuState = 1;
-            bullets.at(ups.at(0)).upgrade();
+            tickCount = saveTime;
+            allUps.at(inUps(ups.at(0))).upgrade();
             break;
         case "op2":
             menuState = 1;
-            bullets.at(ups.at(1)).upgrade();
+            tickCount = saveTime;
+            allUps.at(inUps(ups.at(1))).upgrade();
             break;
         case "op3":
             menuState = 1;
-            bullets.at(ups.at(2)).upgrade();
+            tickCount = saveTime;
+            allUps.at(inUps(ups.at(2))).upgrade();
             break;
         default:
     };
@@ -550,6 +555,13 @@ function access() {
     draw();
 }
 
+function inUps(upName) {
+    for (let i = 0; i < allUps.length; i++) {
+        if (allUps.at(i).name == upName) return i;
+    }
+    return -1;
+}
+
 function resetDefault() {
     punch = 1;
     gun = 1;
@@ -559,11 +571,11 @@ function resetDefault() {
     regen = 0;
     hp = 500;
     score = 0;
+    lastCheck = 0;
     scoreChecks = 0;
     tickCount = 0;
     entities = [];
     projectiles = [];
-    specials = [];
     punchCooldown = 5;
     gunCooldown = 8;
     lastBullet = 0;
@@ -584,14 +596,17 @@ function game() {
     if (keyIn.q && tickCount - punchActiveUntil > punchCooldown) punchActiveUntil = tickCount + 2;
     if (keyIn.e && tickCount - lastBullet > gunCooldown) {
         lastBullet = tickCount;
-        projectiles.push(new Projectile(pos.x, pos.y, pos.v + gun + 6, pos.dir, 5 + gun * 3, "bullet", 'rgb(233, 0, 0)', "Player"));
+        projectiles.push(new Projectile(pos.x, pos.y, gun + 6, pos.dir, 5 + gun * 3, "bullet", 'rgb(233, 0, 0)', "Player"));
     }
 
     pos.x += pos.v * Math.cos(pos.dir) + pos.kb * Math.cos(pos.kbdir);
     pos.y += pos.v * Math.sin(pos.dir) + pos.kb * Math.sin(pos.kbdir);
 
-    //update entity position/ add Entities
-    let entityType = Math.floor(Math.sqrt(Math.random() * tickCount/200)) % 5;
+    //update entity position & add Entities
+    let entityType = Math.floor(Math.random() * Math.random() * 5);
+    if (tickCount/20 < 60 && entityType > 1) entityType = 0;
+    else if (tickCount/20 < 120 && entityType > 2) entityType = 0;
+    else if (tickCount/20 < 150 && entityType > 3) entityType = 0;
     let angle = Math.random() * 2 * Math.PI;
     let entityx = 400 * Math.cos(angle); 
     if (Math.random() > 0.5) entityx = entityx - 2 * Math.cos(angle);
@@ -623,8 +638,8 @@ function game() {
             if (projectiles.at(i).effect == "Health") {
                 let deleted = false;
                 for (let o = 0; o < entities.length; o++) {
-                    if (Math.sqrt((projectiles.at(i).x - entities.at(o).x) * (projectiles.at(i).x - entities.at(o).x) + (projectiles.at(i).y - entities.at(o).y) * (projectiles.at(i).y - entities.at(o).y)) < projectiles.at(i).size + 16) {
-                        entities.at(o).hp += 10;
+                    if (Math.sqrt((projectiles.at(i).x - entities.at(o).x) * (projectiles.at(i).x - entities.at(o).x) + (projectiles.at(i).y - entities.at(o).y) * (projectiles.at(i).y - entities.at(o).y)) < projectiles.at(i).size + 16 && entities.at(o).type != "healer") {
+                        entities.at(o).hp += 40;
                         projectiles.splice(i, 1);
                         i--;
                         deleted = true;
@@ -651,6 +666,12 @@ function game() {
                         projectiles.splice(i, 1);
                         i--;
                         break;
+                    case "laser":
+                        hp -= 2;
+                        projectiles.splice(i, 1);
+                        i--;
+                        break;
+
                 }
             } else if (Math.sqrt((projectiles.at(i).x - pos.x) * (projectiles.at(i).x - pos.x) + (projectiles.at(i).y - pos.y) * (projectiles.at(i).y - pos.y)) > 500) {
                 projectiles.splice(i, 1);
@@ -677,9 +698,40 @@ function game() {
     if (hp <= 0) {
         menuState = 5;
         saveTime = tickCount;
-    } else if (score - scoreChecks * scoreChecks * 20 > 60) {
+    } else if (score - scoreChecks * 60 > 60 && tickCount - lastCheck > 400) {
         menuState = 4;
         scoreChecks++;
+        saveTime = tickCount;
+        lastCheck = tickCount;
+
+        if (punch == 6 && gun == 6 && specialStrength == 1) {
+            let supped = "";
+            for (let i = -4; i < 0; i++)
+                if (allUps.at(i).level == 1) {
+                    supped = allUps.at(i).name;
+                    break;
+                }
+            ups = ["multiBullet", "megaPunch", supped];
+        } else {
+            let skip = Math.floor(Math.random() * 4);
+            switch (upOps.at(scoreChecks - 1)) {
+                case "basic":
+                    for (let i = 0; i < 4; i++)
+                        if (i < skip) ups[i] = allUps.at(i).name;
+                        else if (i != skip) ups[i - 1] = allUps.at(i).name;
+                    break;
+                case "adv":
+                    ups = ["defense", "regen", "atkspeed"];
+                    break;
+                case "special":
+                    for (let i = 0; i < 4; i++)
+                        if (i < skip) ups[i] = allUps.at(i + 9).name;
+                        else if (i != skip) ups[i - 1] = allUps.at(i + 9).name;
+                    break;
+                default:
+                    console.log("upgrade level not found");
+            }
+        }
     }
 }
 
@@ -744,8 +796,21 @@ function draw() {
                 ctx.fillRect(-(x * -Math.sin(pos.dir) + y * Math.cos(pos.dir)) - 5/2 + 320, -(x * Math.cos(pos.dir) + y * Math.sin(pos.dir)) - 5/2 + 180, 5, 5);
             }
         }
-        // decide 3 options...
-        // draw 3 Options...
+        // draw 3 Options
+        ctx.fillStyle = 'rgb(1, 179, 1)';
+        ctx.fillRect(25, 125, 190, 120);
+        ctx.fillRect(225, 125, 190, 120);
+        ctx.fillRect(425, 125, 190, 120);
+        ctx.fillStyle = 'black';
+        ctx.fillRect(30, 130, 180, 110);
+        ctx.fillRect(230, 130, 180, 110);
+        ctx.fillRect(430, 130, 180, 110);
+        ctx.fillStyle = 'rgb(1, 179, 1)';
+        ctx.font = '20px monospaced';
+        ctx.fillText(ups.at(0), 120 - ctx.measureText(ups.at(0)).width/2, 180);
+        ctx.fillText(ups.at(1), 320 - ctx.measureText(ups.at(1)).width/2, 180);
+        ctx.fillText(ups.at(2), 520 - ctx.measureText(ups.at(2)).width/2, 180);
+
     } else if (menuState == 5) {
         ctx.fillStyle = 'rgb(1, 179, 1)';
         ctx.font = "40px monospaced";
