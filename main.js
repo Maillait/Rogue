@@ -26,7 +26,7 @@ class Button {
     drawButton() {
         ctx.fillStyle = 'rgb(102, 177, 68)';
         ctx.fillRect(this.x - this.width/2 - this.borderWidth/2, this.y - this.height/2 - this.borderWidth/2, this.width + this.borderWidth, this.height + this.borderWidth);
-        ctx.fillStyle = 'rgb(0, 0, 0)';
+        ctx.fillStyle = 'rgb(122, 73, 8)';
         ctx.fillRect(this.x - this.width/2, this.y - this.height/2, this.width, this.height);
         ctx.fillStyle = 'rgb(102, 177, 68)';
         ctx.font = `${this.fontSize}px monospace`;
@@ -270,19 +270,19 @@ class Entity {
 
         switch (this.type) {
             case "punch":
-                ctx.drawImage(sprites, 32, 0, 32, 32, - 16, - 16, 32, 32);
+                ctx.drawImage(sprites, 64, 256, 64, 64, - 16, - 16, 32, 32);
                 break;
             case "gunman":
-                ctx.drawImage(sprites, 64, 0, 32, 32, - 16, - 16, 32, 32);
+                ctx.drawImage(sprites, 128, 256, 64, 64, - 16, - 16, 32, 32);
                 break;
             case "grenade":
-                ctx.drawImage(sprites, 64, 0, 32, 32, - 16, - 16, 32, 32);
+                ctx.drawImage(sprites, 192, 256, 64, 64, - 16, - 16, 32, 32);
                 break;
             case "healer":
-                ctx.drawImage(sprites, 96, 0, 32, 32, - 16, - 16, 32, 32);
+                ctx.drawImage(sprites, 256, 256, 64, 64, - 16, - 16, 32, 32);
                 break;
             case "tank":
-                ctx.drawImage(sprites, 128, 0, 32, 32, - 16, - 16, 32, 32);
+                ctx.drawImage(sprites, 320, 256, 64, 64, - 16, - 16, 32, 32);
                 break;
         }
 
@@ -382,57 +382,6 @@ class upgrade {
 const plot = document.getElementById("plot");
 const ctx = plot.getContext("2d");
 const sprites = document.getElementById("sprites");
-
-const enemyTypes = [
-    "punch",
-    "gunman",
-    "grenade",
-    "healer",
-    "tank"
-];
-const buttons = [
-    new Button(320, 240, 400, 45, "Play Rogue", 0, "PlayGame", 30, 5), 
-    new Button(50, 30, 60, 20, "Quit", 1, "LoadRunMenu", 15, 5),
-    new Button(320, 150, 400, 45, "Resume Game", 2, "ResumeGame", 30, 5),
-    new Button(320, 220, 400, 45, "Quit Game", 2, "ExitGame", 30, 5),
-    new Button(120, 220, 130, 20, "Pick 1", 4, "op1", 15, 5),
-    new Button(320, 220, 130, 20, "Pick 2", 4, "op2", 15, 5),
-    new Button(520, 220, 130, 20, "Pick 3", 4, "op3", 15, 5),
-    new Button(320, 300, 400, 45, "Continue", 5, "ExitGame", 30, 5),
-];
-const allUps = [
-new upgrade("punch", 5, "basic"),
-new upgrade("gun", 5, "basic"),
-new upgrade("speed", 5, "basic"),
-new upgrade("maxhp", 5, "basic"),
-new upgrade("defense", 3, "advanced"),
-new upgrade("regen", 3, "advanced"),
-new upgrade("atkspeed", 3, "advanced"),
-new upgrade("multiBullet", 1, "advanced"), // upgrades gun
-new upgrade("megaPunch", 1, "advanced"), // upgrades punch
-new upgrade("dash", 2, "special"), // special (spacebar)
-new upgrade("teleport", 2, "special"), // special (spacebar) teleports you to where your tp bullet 'dies'
-new upgrade("laser", 2, "special"), // special (spacebar) fast weak gun (compliments base gun)
-new upgrade("shield", 2, "special") // special (spacebar) acts as a shield, no cooldown, but you cannot attack
-];
-let entities = [];
-let projectiles = [];
-
-let menuState = 0;
-let tickCount = 0;
-let saveTime = 0;
-let lastCheck = 0;
-
-let keyIn = new keys();
-let pos = new position();
-
-let hp = 500;
-let score = 0;
-let scoreChecks = 0;
-let punchActiveUntil = 0;
-let lastBullet = 0;
-
-let ups = ["", "", ""];
 let upOps = [
     "basic",
     "basic",
@@ -465,6 +414,56 @@ let upOps = [
     "basic",
     "basic"
 ];
+const enemyTypes = [
+    "punch",
+    "gunman",
+    "grenade",
+    "healer",
+    "tank"
+];
+const buttons = [
+    new Button(320, 240, 400, 45, "Play Rogue", 0, "PlayGame", 30, 5), 
+    new Button(50, 30, 60, 20, "Quit", 1, "LoadRunMenu", 15, 5),
+    new Button(320, 150, 400, 45, "Resume Game", 2, "ResumeGame", 30, 5),
+    new Button(320, 220, 400, 45, "Quit Game", 2, "ExitGame", 30, 5),
+    new Button(120, 220, 130, 20, "Pick 1", 4, "op1", 15, 5),
+    new Button(320, 220, 130, 20, "Pick 2", 4, "op2", 15, 5),
+    new Button(520, 220, 130, 20, "Pick 3", 4, "op3", 15, 5),
+    new Button(320, 300, 400, 45, "Continue", 5, "ExitGame", 30, 5),
+];
+const allUps = [
+new upgrade("punch", 5, "basic"),
+new upgrade("gun", 5, "basic"),
+new upgrade("speed", 5, "basic"),
+new upgrade("maxhp", 5, "basic"),
+new upgrade("defense", 3, "advanced"),
+new upgrade("regen", 3, "advanced"),
+new upgrade("atkspeed", 3, "advanced"),
+new upgrade("multiBullet", 1, "advanced"), // upgrades gun
+new upgrade("megaPunch", 1, "advanced"), // upgrades punch
+new upgrade("dash", 2, "special"), // special (spacebar)
+new upgrade("teleport", 2, "special"), // special (spacebar) teleports you to where your tp bullet 'dies'
+new upgrade("laser", 2, "special"), // special (spacebar) fast weak gun (compliments base gun)
+new upgrade("shield", 2, "special") // special (spacebar) acts as a shield, no cooldown, but you cannot attack
+];
+let keyIn = new keys();
+let pos = new position();
+
+let entities = [];
+let projectiles = [];
+
+let menuState = 0;
+let tickCount = 0;
+let saveTime = 0;
+let lastCheck = 0;
+
+let hp = 500;
+let score = 0;
+let scoreChecks = 0;
+let punchActiveUntil = 0;
+let lastBullet = 0;
+
+let ups = ["", "", ""];
 
 let punch = 1;
 let gun = 1;
@@ -557,7 +556,7 @@ window.addEventListener('keyup', function(e) {
     else if (e.key == 'Escape') keyIn.escape = false;
 });
 
-timer = setInterval(access, 50);
+timer = setInterval(access, 30);
 
 function access() {
     if (menuState == 1) game();
@@ -572,25 +571,28 @@ function inUps(upName) {
 }
 
 function resetDefault() {
+    entities = [];
+    projectiles = [];
+    tickCount = 0;
+    saveTime = 0;
+    lastCheck = 0;
+    hp = 500;
+    score = 0;
+    scoreChecks = 0;
+    punchActiveUntil = 0;
+    lastBullet = 0;
+    ups = ["", "", ""];
     punch = 1;
     gun = 1;
     speed = 1;
     maxhp = 500;
     defense = 0;
     regen = 0;
-    hp = 500;
-    score = 0;
-    lastCheck = 0;
-    scoreChecks = 0;
-    tickCount = 0;
-    nextSpecial = 0;
+    punchCooldown = 20;
+    gunCooldown = 10;
     special = 0;
     specialStrength = 0;
-    entities = [];
-    projectiles = [];
-    punchCooldown = 5;
-    gunCooldown = 8;
-    lastBullet = 0;
+    nextSpecial = 0;
     pos = new position();
 }
 
@@ -794,13 +796,14 @@ function game() {
     }
 }
 
+//render lilypads instead of dots
 function draw() {
     ctx.fillStyle = 'rgb(100, 219, 45)';
     ctx.fillRect(0, 0, 640, 360);
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = 'rgb(59, 201, 211)';
     ctx.fillRect(3, 3, 634, 354);
     
-    if (menuState == 0) ctx.drawImage(sprites, 0, 33, 160, 52, 170 + 10 * Math.cos(tickCount/10), 100 + 5 * Math.sin(tickCount/5), 300, 100);
+    if (menuState == 0) ctx.drawImage(sprites, 0, 0, 384, 128, 128 + 10 * Math.cos(tickCount/10), 80 + 5 * Math.sin(tickCount/5), 384, 128);
     else if (menuState == 1) {
         ctx.fillStyle = 'rgb(0, 100, 0)';
         for (let o = -5; o < 6; o++) {
@@ -819,7 +822,7 @@ function draw() {
             ctx.ellipse(320, 180, 48, 48, 0, 0, 2 * Math.PI);
             ctx.fill();
         }
-        ctx.drawImage(sprites, 0, 0, 32, 32, 288, 148, 64, 64);
+        ctx.drawImage(sprites, 0, 256, 64, 64, 288, 148, 64, 64);
         //draw entities
         for (let i = 0; i < entities.length; i++) entities.at(i).draw();
 
@@ -860,7 +863,7 @@ function draw() {
         ctx.fillRect(25, 125, 190, 120);
         ctx.fillRect(225, 125, 190, 120);
         ctx.fillRect(425, 125, 190, 120);
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = 'rgb(122, 73, 8)';
         ctx.fillRect(30, 130, 180, 110);
         ctx.fillRect(230, 130, 180, 110);
         ctx.fillRect(430, 130, 180, 110);
