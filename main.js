@@ -152,7 +152,7 @@ class Entity {
                     this.lastAttack = tickCount;
                     pos.kbdir = Math.atan2(pos.kb * Math.sin(pos.kbdir) + 5 * Math.sin(this.direction), pos.kb * Math.cos(pos.kbdir) + 5 * Math.cos(this.direction));
                     pos.kb += 5;
-                    hp -= 10;
+                    hp -= 10 - defense;
                 }
                 break;
             case "gunman":
@@ -318,7 +318,8 @@ class upgrade {
     }
 
     upgrade () {
-        if (!this.maxed()) this.level++;
+        if (!this.maxed()) {
+            this.level++;
 
         switch (this.name) {
             case "punch":
@@ -338,7 +339,7 @@ class upgrade {
                 defense++;
                 break;
             case "regen":
-                regen += 10;
+                regen += 1;
                 break;
             case "atkspeed":
                 punchCooldown -= 3;
@@ -354,7 +355,7 @@ class upgrade {
                 special = 1;
                 specialStrength++;
                 break;
-            case "tp":
+            case "teleport":
                 special = 2;
                 specialStrength++;
                 break;
@@ -368,6 +369,7 @@ class upgrade {
                 break;
             default:
                 console.log("Error: upgrade not found");
+            }
         }
     }
 
@@ -409,7 +411,7 @@ new upgrade("atkspeed", 3, "advanced"),
 new upgrade("multiBullet", 1, "advanced"), // upgrades gun
 new upgrade("megaPunch", 1, "advanced"), // upgrades punch
 new upgrade("dash", 2, "special"), // special (spacebar)
-new upgrade("tp", 2, "special"), // special (spacebar) teleports you to where your tp bullet 'dies'
+new upgrade("teleport", 2, "special"), // special (spacebar) teleports you to where your tp bullet 'dies'
 new upgrade("laser", 2, "special"), // special (spacebar) fast weak gun (compliments base gun)
 new upgrade("shield", 2, "special") // special (spacebar) acts as a shield, no cooldown, but you cannot attack
 ];
@@ -474,6 +476,7 @@ let punchCooldown = 20;
 let gunCooldown = 10;
 let special = 0;
 let specialStrength = 0;
+let nextSpecial = 0;
 
 plot.addEventListener('click', function(e) {
     let func = "NA";
@@ -500,19 +503,25 @@ plot.addEventListener('click', function(e) {
             menuState = 0;
             break;
         case "op1":
-            menuState = 1;
-            tickCount = saveTime;
-            allUps.at(inUps(ups.at(0))).upgrade();
+            if (ups[0] != "Sold Out") {
+                menuState = 1;
+                tickCount = saveTime;
+                allUps.at(inUps(ups.at(0))).upgrade();
+            } else alert("Sold out!");
             break;
         case "op2":
-            menuState = 1;
-            tickCount = saveTime;
-            allUps.at(inUps(ups.at(1))).upgrade();
+            if (ups[1] != "Sold Out") {
+                menuState = 1;
+                tickCount = saveTime;
+                allUps.at(inUps(ups.at(1))).upgrade();
+            } else alert("Sold out!");
             break;
         case "op3":
-            menuState = 1;
-            tickCount = saveTime;
-            allUps.at(inUps(ups.at(2))).upgrade();
+            if (ups[2] != "Sold Out") {
+                menuState = 1;
+                tickCount = saveTime;
+                allUps.at(inUps(ups.at(2))).upgrade();
+            } else alert("Sold out!");
             break;
         default:
     };
@@ -527,7 +536,7 @@ window.addEventListener('keydown', function(e) {
     else if (e.key == 'a') keyIn.a = true;
     else if (e.key == 's') keyIn.s = true;
     else if (e.key == 'd') keyIn.d = true;
-    else if (e.key == ' ') keyIn.space = true;
+    else if (e.code == 'Space') keyIn.space = true;
     else if (e.key == 'e') keyIn.e = true;
     else if (e.key == 'q') keyIn.q = true;
     else if (e.key == 'Escape') keyIn.escape = true;
@@ -542,7 +551,7 @@ window.addEventListener('keyup', function(e) {
     else if (e.key == 'a') keyIn.a = false;
     else if (e.key == 's') keyIn.s = false;
     else if (e.key == 'd') keyIn.d = false;
-    else if (e.key == ' ') keyIn.space = false;
+    else if (e.code == 'Space') keyIn.space = false;
     else if (e.key == 'e') keyIn.e = false;
     else if (e.key == 'q') keyIn.q = false;
     else if (e.key == 'Escape') keyIn.escape = false;
@@ -574,6 +583,9 @@ function resetDefault() {
     lastCheck = 0;
     scoreChecks = 0;
     tickCount = 0;
+    nextSpecial = 0;
+    special = 0;
+    specialStrength = 0;
     entities = [];
     projectiles = [];
     punchCooldown = 5;
@@ -589,6 +601,7 @@ function game() {
     } else if (keyIn.down || keyIn.s) {
         if (pos.v > -2 * speed - 3) pos.v -= 2 * speed;
     } else if (pos.v != 0) pos.v /= 2;
+    if (pos.v > 4 * speed + 6) pos.v -= 1;
     pos.kb /= 3;
     if (keyIn.right || keyIn.d) pos.dir -= 0.1;
     if (keyIn.left || keyIn.a) pos.dir += 0.1;
@@ -596,7 +609,29 @@ function game() {
     if (keyIn.q && tickCount - punchActiveUntil > punchCooldown) punchActiveUntil = tickCount + 2;
     if (keyIn.e && tickCount - lastBullet > gunCooldown) {
         lastBullet = tickCount;
-        projectiles.push(new Projectile(pos.x, pos.y, gun + 6, pos.dir, 5 + gun * 3, "bullet", 'rgb(233, 0, 0)', "Player"));
+        projectiles.push(new Projectile(pos.x, pos.y, gun + 6, pos.dir, 5 + gun * 2, "bullet", 'rgb(233, 0, 0)', "Player"));
+    }
+
+    if (tickCount % 10 && hp < maxhp) hp += regen;
+    if (keyIn.space && tickCount > nextSpecial) {
+        switch (special) {
+            case 1:
+                nextSpecial = tickCount + 200/specialStrength;
+                punchActiveUntil = tickCount + 5 + 5 * specialStrength;
+                pos.v = 40 + 20 * specialStrength;
+                break;
+            case 2:
+                projectiles.push(new Projectile(pos.x, pos.y, 25, pos.dir, 4, "tp", "rgb(101, 18, 196)", "Player"));
+                nextSpecial = tickCount + 200/specialStrength;
+                break;
+            case 3:
+                projectiles.push(new Projectile(pos.x, pos.y, 30 * specialStrength, pos.dir, 4, "laser", "rgb(238, 33, 33)", "Player"));
+                nextSpecial = tickCount + 4/specialStrength;
+                break;
+            case 4:
+                // add shield functionality
+                break;
+        }
     }
 
     pos.x += pos.v * Math.cos(pos.dir) + pos.kb * Math.cos(pos.kbdir);
@@ -653,21 +688,16 @@ function game() {
             } else if (Math.sqrt((projectiles.at(i).x - pos.x) * (projectiles.at(i).x - pos.x) + (projectiles.at(i).y - pos.y) * (projectiles.at(i).y - pos.y)) < projectiles.at(i).size + 24) {
                 switch (projectiles.at(i).effect) {
                     case "arrow":
-                        hp -= 3;
+                        hp -= 3 - defense;
                         pos.kbdir = Math.atan2(pos.kb * Math.sin(pos.kbdir) + Math.sin(projectiles.at(i).direction), pos.kb * Math.cos(pos.kbdir) + Math.cos(projectiles.at(i).direction));
                         pos.kb += 1;
                         projectiles.splice(i, 1);
                         i--;
                         break;
                     case "grenade":
-                        hp -= 10;
+                        hp -= 10 - defense;
                         pos.kb += 10;
                         pos.kbdir = Math.atan2(pos.kb * Math.sin(pos.kbdir) + 10 * Math.sin(projectiles.at(i).direction), pos.kb * Math.cos(pos.kbdir) + 10 * Math.cos(projectiles.at(i).direction));
-                        projectiles.splice(i, 1);
-                        i--;
-                        break;
-                    case "laser":
-                        hp -= 2;
                         projectiles.splice(i, 1);
                         i--;
                         break;
@@ -681,13 +711,39 @@ function game() {
             let deleted = false;
             for (let o = 0; o < entities.length; o++) {
                 if (Math.sqrt((projectiles.at(i).x - entities.at(o).x) * (projectiles.at(i).x - entities.at(o).x) + (projectiles.at(i).y - entities.at(o).y) * (projectiles.at(i).y - entities.at(o).y)) < projectiles.at(i).size + 16) {
-                    entities.at(o).hp -= gun * 10 + 40;
-                    projectiles.splice(i, 1);
-                    i--;
-                    deleted = true;
+                    switch (projectiles.at(i).effect) {
+                        case "tp":
+                            let tx = pos.x;
+                            let ty = pos.y;
+                            pos.x = entities.at(o).x;
+                            pos.y = entities.at(o).y;
+                            entities.at(o).y = ty;
+                            entities.at(o).x = tx;
+                            entities.at(o).hp -= 50;
+                            projectiles.splice(i, 1);
+                            i--;
+                            deleted = true;
+                            break;
+                        case "laser":
+                            entities.at(o).hp -= 40;
+                            projectiles.splice(i, 1);
+                            i--;
+                            deleted = true;
+                            break;
+                        case "bullet":
+                            entities.at(o).hp -= gun * 10 + 40;
+                            projectiles.splice(i, 1);
+                            i--;
+                            deleted = true;
+                        break;
+                    }
                     break;
                 }
             } if (!deleted && Math.sqrt((projectiles.at(i).x - pos.x) * (projectiles.at(i).x - pos.x) + (projectiles.at(i).y - pos.y) * (projectiles.at(i).y - pos.y)) > 500) {
+                if (projectiles.at(i).effect == "tp") {
+                    pos.x = projectiles.at(i).x;
+                    pos.y = projectiles.at(i).y;
+                }
                 projectiles.splice(i, 1);
                 i--;
             }
@@ -730,6 +786,9 @@ function game() {
                     break;
                 default:
                     console.log("upgrade level not found");
+            }
+            for (let i = 0; i < ups.length; i++) {
+                if (allUps.at(inUps(ups.at(i))).maxed()) ups[i] = "Sold Out";
             }
         }
     }
