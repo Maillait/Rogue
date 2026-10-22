@@ -71,8 +71,8 @@ class Projectile {
     }
 
     step() {
-        this.x += this.v * Math.cos(this.direction);
-        this.y += this.v * Math.sin(this.direction);
+        this.x += this.v * Math.cos(this.direction) * lastTick/50;
+        this.y += this.v * Math.sin(this.direction) * lastTick/50;
     }
 
     draw() {
@@ -128,8 +128,8 @@ class Entity {
     }
 
     step() {
-        this.x += this.v * Math.cos(this.direction) + this.kb * Math.cos(this.kbdir);
-        this.y += this.v * Math.sin(this.direction) + this.kb * Math.sin(this.kbdir);
+        this.x += this.v * Math.cos(this.direction) + this.kb * Math.cos(this.kbdir) * lastTick/50;
+        this.y += this.v * Math.sin(this.direction) + this.kb * Math.sin(this.kbdir) * lastTick/50;
 
         while (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > Math.PI) this.direction -= 2 * Math.PI;
         while (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -Math.PI) this.direction += 2 * Math.PI;
@@ -140,16 +140,16 @@ class Entity {
             case "punch":
                 if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.2;
                 else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.2;
-                if (tickCount < 900) this.v = 3;
-                else if (tickCount < 3000) this.v = tickCount/300;
+                if (performance.now() - refTime < 18000) this.v = 3;
+                else if (performance.now() - refTime < 60000) this.v = (performance.now() - refTime)/6000;
                 else this.v = 10;
 
-                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= performance.now()) {
                     this.kbdir = this.direction + Math.PI;
                     this.kb += punch * 4 + 16;
                     this.hp -= punch * 5 + 10;
-                } else if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36 && tickCount - this.lastAttack > this.cooldown) {
-                    this.lastAttack = tickCount;
+                } else if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 36 && performance.now() - this.lastAttack > this.cooldown * 50) {
+                    this.lastAttack = performance.now();
                     pos.kbdir = Math.atan2(pos.kb * Math.sin(pos.kbdir) + 5 * Math.sin(this.direction), pos.kb * Math.cos(pos.kbdir) + 5 * Math.cos(this.direction));
                     pos.kb += 5;
                     hp -= 10 - defense;
@@ -164,9 +164,9 @@ class Entity {
                     if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.1;
                     else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.1;
                     this.v = 0;
-                    if (tickCount - this.lastAttack > this.cooldown) {
+                    if (performance.now() - this.lastAttack > this.cooldown * 50) {
                         projectiles.push(new Projectile(this.x, this.y, 15, this.direction, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
-                        this.lastAttack = tickCount;
+                        this.lastAttack = performance.now();
                     }
                 } else {
                     if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < 2 && this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0) this.direction += 0.2;
@@ -174,7 +174,7 @@ class Entity {
                     this.v = 3;
                 }
 
-                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= performance.now()) {
                     this.kbdir = Math.atan2(pos.y - this.y, pos.x - this.x) + Math.PI;
                     this.kb += punch * 4 + 16;
                     this.hp -= punch * 5 + 10;
@@ -190,16 +190,16 @@ class Entity {
                     if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.1;
                     else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.1;
                     this.v = 0;
-                    if (tickCount - this.lastAttack > this.cooldown) {
+                    if (performance.now() - this.lastAttack > this.cooldown * 50) {
                         projectiles.push(new Projectile(this.x, this.y, 10, this.direction, 10, "grenade", 'rgb(106, 153, 45)', "Enemy"));
-                        this.lastAttack = tickCount;
+                        this.lastAttack = performance.now();
                     }
                 } else {
                     if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < 2 && this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0) this.direction += 0.2;
                     else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > -2) this.direction += 0.2;
                     this.v = 3;
                 }
-                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= performance.now()) {
                     this.kbdir = Math.atan2(pos.y - this.y, pos.x - this.x) + Math.PI;
                     this.kb += punch * 4 + 16;
                     this.hp -= punch * 5 + 10;
@@ -215,16 +215,16 @@ class Entity {
                     if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.1;
                     else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.1;
                     this.v = 0;
-                    if (tickCount - this.lastAttack > this.cooldown) {
+                    if (performance.now() - this.lastAttack > this.cooldown * 50) {
                         projectiles.push(new Projectile(this.x, this.y, 10, Math.random() * 2 * Math.PI, 6, "Health", 'rgb(44, 184, 189)', "Enemy"));
-                        this.lastAttack = tickCount;
+                        this.lastAttack = performance.now();
                     }
                 } else {
                     if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < 2 && this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0) this.direction += 0.2;
                     else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > -2) this.direction += 0.2;
                     this.v = 2;
                 }
-                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= performance.now()) {
                     this.kbdir = Math.atan2(pos.y - this.y, pos.x - this.x) + Math.PI;
                     this.kb += punch * 4 + 16;
                     this.hp -= punch * 5 + 10;
@@ -235,22 +235,22 @@ class Entity {
                 if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.1;
                 else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.1;
                 this.v = 1;
-                if (tickCount - this.lastAttack > this.cooldown) {
+                if (performance.now() - this.lastAttack > this.cooldown * 50) {
                     if (Math.random() > 0.5) {
                         projectiles.push(new Projectile(this.x, this.y, 10, this.direction, 10, "grenade", 'rgb(106, 153, 45)', "Enemy"));
                         projectiles.push(new Projectile(this.x, this.y, 15, this.direction, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
                         projectiles.push(new Projectile(this.x, this.y, 15, this.direction + Math.PI/6, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
                         projectiles.push(new Projectile(this.x, this.y, 15, this.direction - Math.PI/6, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
-                        this.lastAttack = tickCount;
+                        this.lastAttack = performance.now();
                     } 
                     if (Math.random() > 0.5 && entities.length < 500) {
                         if (Math.random() < 0.3333333) entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "punch", 0)); 
                         else if (Math.random < 0.5) entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "gunman", 0)); 
                         else entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "grenade", 0)); 
-                        this.lastAttack = tickCount;
+                        this.lastAttack = performance.now();
                     }
                 }
-                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= tickCount) {
+                if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= performance.now()) {
                     this.kbdir = Math.atan2(pos.y - this.y, pos.x - this.x) + Math.PI;
                     this.kb += punch * 4 + 16;
                     this.hp -= punch * 5 + 10;
@@ -456,6 +456,10 @@ let menuState = 0;
 let tickCount = 0;
 let saveTime = 0;
 let lastCheck = 0;
+let lastTick = performance.now();
+let lastTickTime = 0;
+let lastEnemy = 0;
+let refTime = performance.now();
 
 let hp = 500;
 let score = 0;
@@ -491,11 +495,11 @@ plot.addEventListener('click', function(e) {
             break;
         case "LoadRunMenu":
             menuState = 2;
-            saveTime = tickCount;
+            saveTime = performance.now();
             break;
         case "ResumeGame":
             menuState = 1;
-            tickCount = saveTime;
+            refTime -= performance.now() - saveTime;
             break;
         case "ExitGame":
             resetDefault();
@@ -504,21 +508,21 @@ plot.addEventListener('click', function(e) {
         case "op1":
             if (ups[0] != "Sold Out") {
                 menuState = 1;
-                tickCount = saveTime;
+                refTime -= performance.now() - saveTime;
                 allUps.at(inUps(ups.at(0))).upgrade();
             } else alert("Sold out!");
             break;
         case "op2":
             if (ups[1] != "Sold Out") {
                 menuState = 1;
-                tickCount = saveTime;
+                refTime -= performance.now() - saveTime;
                 allUps.at(inUps(ups.at(1))).upgrade();
             } else alert("Sold out!");
             break;
         case "op3":
             if (ups[2] != "Sold Out") {
                 menuState = 1;
-                tickCount = saveTime;
+                refTime -= performance.now() - saveTime;
                 allUps.at(inUps(ups.at(2))).upgrade();
             } else alert("Sold out!");
             break;
@@ -556,11 +560,15 @@ window.addEventListener('keyup', function(e) {
     else if (e.key == 'Escape') keyIn.escape = false;
 });
 
-timer = setInterval(access, 30);
+requestAnimationFrame(access);
 
 function access() {
+    lastTickTime = performance.now() - lastTick;
+
     if (menuState == 1) game();
     draw();
+
+    requestAnimationFrame(access);
 }
 
 function inUps(upName) {
@@ -575,6 +583,7 @@ function resetDefault() {
     projectiles = [];
     tickCount = 0;
     saveTime = 0;
+    refTime = performance.now();
     lastCheck = 0;
     hp = 500;
     score = 0;
@@ -599,36 +608,45 @@ function resetDefault() {
 function game() {
     //update player position +
     if (keyIn.up || keyIn.w) {
-        if (pos.v < 4 * speed + 6) pos.v += 2 * speed;
+        if (pos.v < 4 * speed + 6) pos.v += 2 * speed * lastTick/50;
     } else if (keyIn.down || keyIn.s) {
-        if (pos.v > -2 * speed - 3) pos.v -= 2 * speed;
+        if (pos.v > -2 * speed - 3) pos.v -= 2 * speed * lastTick/50;
     } else if (pos.v != 0) pos.v /= 2;
-    if (pos.v > 4 * speed + 6) pos.v -= 1;
-    pos.kb /= 3;
-    if (keyIn.right || keyIn.d) pos.dir -= 0.1;
-    if (keyIn.left || keyIn.a) pos.dir += 0.1;
+    if (pos.v > 4 * speed + 6) pos.v -= 1 * lastTick/50;
+    pos.kb /= 3 * 50/lastTick;
+    if (keyIn.right) pos.dir -= 0.1 * lastTick/50;
+    if (keyIn.left) pos.dir += 0.1 * lastTick/50;
+    if (keyIn.a) {
+        pos.x += 4 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
+        pos.y += 4 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
+    }
+    if (keyIn.d) {
+        pos.x -= 4 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
+        pos.y -= 4 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
+    }
 
-    if (keyIn.q && tickCount - punchActiveUntil > punchCooldown) punchActiveUntil = tickCount + 2;
-    if (keyIn.e && tickCount - lastBullet > gunCooldown) {
-        lastBullet = tickCount;
+
+    if (keyIn.q && performance.now() - punchActiveUntil > punchCooldown * 50) punchActiveUntil = performance.now();
+    if (keyIn.e && performance.now() - lastBullet > gunCooldown * 50) {
+        lastBullet = performance.now();
         projectiles.push(new Projectile(pos.x, pos.y, gun + 6, pos.dir, 5 + gun * 2, "bullet", 'rgb(233, 0, 0)', "Player"));
     }
 
-    if (tickCount % 10 && hp < maxhp) hp += regen;
-    if (keyIn.space && tickCount > nextSpecial) {
+    if (hp < maxhp) hp += regen/5;
+    if (keyIn.space && performance.now() > nextSpecial) {
         switch (special) {
             case 1:
-                nextSpecial = tickCount + 200/specialStrength;
-                punchActiveUntil = tickCount + 5 + 5 * specialStrength;
+                nextSpecial = performance.now() + 100/specialStrength;
+                punchActiveUntil = performance.now() + 0.5 * specialStrength;
                 pos.v = 40 + 20 * specialStrength;
                 break;
             case 2:
                 projectiles.push(new Projectile(pos.x, pos.y, 25, pos.dir, 4, "tp", "rgb(101, 18, 196)", "Player"));
-                nextSpecial = tickCount + 200/specialStrength;
+                nextSpecial = performance.now() + 10/specialStrength;
                 break;
             case 3:
                 projectiles.push(new Projectile(pos.x, pos.y, 30 * specialStrength, pos.dir, 4, "laser", "rgb(238, 33, 33)", "Player"));
-                nextSpecial = tickCount + 4/specialStrength;
+                nextSpecial = performance.now() + 0.2/specialStrength;
                 break;
             case 4:
                 // add shield functionality
@@ -636,21 +654,25 @@ function game() {
         }
     }
 
-    pos.x += pos.v * Math.cos(pos.dir) + pos.kb * Math.cos(pos.kbdir);
-    pos.y += pos.v * Math.sin(pos.dir) + pos.kb * Math.sin(pos.kbdir);
+    pos.x += (pos.v * Math.cos(pos.dir) + pos.kb * Math.cos(pos.kbdir)) * lastTick/50;
+    pos.y += (pos.v * Math.sin(pos.dir) + pos.kb * Math.sin(pos.kbdir)) * lastTick/50;
 
     //update entity position & add Entities
-    let entityType = Math.floor(Math.random() * Math.random() * 5);
-    if (tickCount/20 < 60 && entityType > 1) entityType = 0;
-    else if (tickCount/20 < 120 && entityType > 2) entityType = 0;
-    else if (tickCount/20 < 150 && entityType > 3) entityType = 0;
-    let angle = Math.random() * 2 * Math.PI;
-    let entityx = 400 * Math.cos(angle); 
-    if (Math.random() > 0.5) entityx = entityx - 2 * Math.cos(angle);
-    let entityy = 400 * Math.sin(angle); 
-    if (Math.random() > 0.5) entityy = entityy - 2 * Math.sin(angle);
+    if (performance.now() - lastEnemy > 20 && Math.random() > 0.97 && entities.length < 200) {
+        let entityType = Math.floor(Math.random() * Math.random() * 5);
+        if (performance.now() - refTime < 60000 && entityType > 1) entityType = 0;
+        else if (performance.now() - refTime < 120000 && entityType > 2) entityType = 0;
+        else if (performance.now() - refTime < 150000 && entityType > 3) entityType = 0;
+        let angle = Math.random() * 2 * Math.PI;
+        let entityx = 500 * Math.cos(angle); 
+        if (Math.random() > 0.5) entityx = entityx - 2 * Math.cos(angle);
+        let entityy = 500 * Math.sin(angle); 
+        if (Math.random() > 0.5) entityy = entityy - 2 * Math.sin(angle);
     
-    if (Math.random() > 0.97 && entities.length < 200) entities.push(new Entity(entityx, entityy, Math.atan2(pos.y - entityy, pos.x - entityx), enemyTypes[entityType], 2));
+        entities.push(new Entity(entityx, entityy, Math.atan2(pos.y - entityy, pos.x - entityx), enemyTypes[entityType], 2));
+        lastEnemy = performance.now();
+    }
+
     for (let i = 0; i < entities.length; i++) {
         entities.at(i).step();
         if (entities.at(i).hp <= 0) {
@@ -755,12 +777,12 @@ function game() {
 
     if (hp <= 0) {
         menuState = 5;
-        saveTime = tickCount;
-    } else if (score - scoreChecks * 60 > 60 && tickCount - lastCheck > 400) {
+        saveTime = performance.now();
+    } else if (score - scoreChecks * 60 > 60 && performance.now() - lastCheck > 10000) {
         menuState = 4;
         scoreChecks++;
-        saveTime = tickCount;
-        lastCheck = tickCount;
+        saveTime = performance.now();
+        lastCheck = performance.now();
 
         if (punch == 6 && gun == 6 && specialStrength == 1) {
             let supped = "";
@@ -803,20 +825,20 @@ function draw() {
     ctx.fillStyle = 'rgb(59, 201, 211)';
     ctx.fillRect(3, 3, 634, 354);
     
-    if (menuState == 0) ctx.drawImage(sprites, 0, 0, 384, 128, 128 + 10 * Math.cos(tickCount/10), 80 + 5 * Math.sin(tickCount/5), 384, 128);
+    if (menuState == 0) ctx.drawImage(sprites, 0, 0, 384, 128, 128 + 10 * Math.cos(performance.now()/500), 80 + 5 * Math.sin(performance.now()/250), 384, 128);
     else if (menuState == 1) {
         ctx.fillStyle = 'rgb(0, 100, 0)';
         for (let o = -5; o < 6; o++) {
             let x = 100 * (Math.floor(pos.x/100) + o) - pos.x;
             for (let i = -3; i < 4; i++) {
                 let y = 100 * (Math.floor(pos.y/100) + i) - pos.y;
-                ctx.fillRect(-(x * -Math.sin(pos.dir) + y * Math.cos(pos.dir)) - 5/2 + 320, -(x * Math.cos(pos.dir) + y * Math.sin(pos.dir)) - 5/2 + 180, 5, 5);
+                ctx.drawImage(sprites, 128 + 64 * Math.floor(Math.abs(Math.floor(4 * 100 * (Math.floor(pos.y/100) + i) * 100 * (Math.floor(pos.x/100) + o) + 1)) % 4), 320, 64, 64, -(x * -Math.sin(pos.dir) + y * Math.cos(pos.dir)) - 16 + 320 + 32 * Math.abs(Math.floor(4 * 100 * (Math.floor(pos.y/100) + i) + 1) % 4), -(x * Math.cos(pos.dir) + y * Math.sin(pos.dir)) - 16 + 180 + 32 * Math.abs(Math.floor(4 * 100 * (Math.floor(pos.x/100) + o) + 1) % 4), 32, 32)
             }
         }
         //draw projectiles
         for (let i = 0; i < projectiles.length; i++) projectiles.at(i).draw();
         // draw Player
-        if (punchActiveUntil >= tickCount) {
+        if (punchActiveUntil >= performance.now()) {
             ctx.fillStyle = 'rgba(223, 30, 30, 0.36)';
             ctx.beginPath();
             ctx.ellipse(320, 180, 48, 48, 0, 0, 2 * Math.PI);
@@ -838,7 +860,7 @@ function draw() {
 
         ctx.fillStyle = 'rgb(2, 2, 2)';
         ctx.font = "15px monospaced";
-        ctx.fillText("hp : " + hp, 25, 335);
+        ctx.fillText("hp : " + Math.floor(hp), 25, 335);
         
     } else if (menuState == 2) {
         ctx.fillStyle = 'rgb(0, 100, 0)';
@@ -879,7 +901,7 @@ function draw() {
         ctx.fillText("You Died...", 230, 100);
         ctx.font = "20px monospaced";
         ctx.fillText("Score : " + score, 280, 130);
-        ctx.fillText("Time : " + saveTime/20 + " seconds", 240, 160);
+        ctx.fillText("Time : " + Math.floor((saveTime - refTime)/1000) + " seconds", 240, 160);
     }
 
     for (var i = 0; i < buttons.length; i++) 
