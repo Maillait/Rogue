@@ -378,10 +378,46 @@ class upgrade {
     }
 }
 
-//setting up some vars for the canvas
+class lilypads {
+    xrel;
+    yrel;
+    type;
+    
+    constructor () {
+        let angle = Math.random() * Math.PI;
+        this.xrel = 500 * (1 - Math.random() * Math.random()) * Math.cos(angle) + pos.x;
+        this.yrel = 500 * (1 - Math.random() * Math.random()) * Math.sin(angle) + pos.y;
+        this.type = Math.floor(Math.random() * 4);
+    }
+
+    drawDel() {
+        let rx = this.xrel - pos.x;
+        let ry = this.yrel - pos.y;
+
+        if (rx * rx + ry * ry > 370 * 370) return true;
+        else {
+            ctx.save();
+            ctx.translate(-(rx * -Math.sin(pos.dir) + ry * Math.cos(pos.dir)) + 320, -(rx * Math.cos(pos.dir) + ry * Math.sin(pos.dir)) + 180);
+            ctx.rotate(pos.dir);
+
+            ctx.drawImage(sprites, 128 + 64 * this.type, 320, 64, 64, -16, -16, 32, 32);
+
+            ctx.restore();
+
+            return false;
+        }
+    }
+
+    flip() {
+        this.xrel = pos.x + pos.x - this.xrel;
+        this.yrel = pos.y + pos.y - this.yrel;
+    }
+}
+
 const plot = document.getElementById("plot");
 const ctx = plot.getContext("2d");
 const sprites = document.getElementById("sprites");
+
 let upOps = [
     "basic",
     "basic",
@@ -468,6 +504,28 @@ let punchActiveUntil = 0;
 let lastBullet = 0;
 
 let ups = ["", "", ""];
+let lilypad = [
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads()
+];
 
 let punch = 1;
 let gun = 1;
@@ -492,6 +550,7 @@ plot.addEventListener('click', function(e) {
         case "PlayGame":
             menuState = 1;
             tickCount = 0;
+            resetDefault();
             break;
         case "LoadRunMenu":
             menuState = 2;
@@ -502,7 +561,6 @@ plot.addEventListener('click', function(e) {
             refTime -= performance.now() - saveTime;
             break;
         case "ExitGame":
-            resetDefault();
             menuState = 0;
             break;
         case "op1":
@@ -626,7 +684,7 @@ function game() {
     }
 
 
-    if (keyIn.q && performance.now() - punchActiveUntil > punchCooldown * 50) punchActiveUntil = performance.now();
+    if (keyIn.q && performance.now() - punchActiveUntil > punchCooldown * 50) punchActiveUntil = performance.now() + punch * 200 + 1000;
     if (keyIn.e && performance.now() - lastBullet > gunCooldown * 50) {
         lastBullet = performance.now();
         projectiles.push(new Projectile(pos.x, pos.y, gun + 6, pos.dir, 5 + gun * 2, "bullet", 'rgb(233, 0, 0)', "Player"));
@@ -818,7 +876,6 @@ function game() {
     }
 }
 
-//render lilypads instead of dots
 function draw() {
     ctx.fillStyle = 'rgb(100, 219, 45)';
     ctx.fillRect(0, 0, 640, 360);
@@ -827,14 +884,13 @@ function draw() {
     
     if (menuState == 0) ctx.drawImage(sprites, 0, 0, 384, 128, 128 + 10 * Math.cos(performance.now()/500), 80 + 5 * Math.sin(performance.now()/250), 384, 128);
     else if (menuState == 1) {
-        ctx.fillStyle = 'rgb(0, 100, 0)';
-        for (let o = -5; o < 6; o++) {
-            let x = 100 * (Math.floor(pos.x/100) + o) - pos.x;
-            for (let i = -3; i < 4; i++) {
-                let y = 100 * (Math.floor(pos.y/100) + i) - pos.y;
-                ctx.drawImage(sprites, 128 + 64 * Math.floor(Math.abs(Math.floor(4 * 100 * (Math.floor(pos.y/100) + i) * 100 * (Math.floor(pos.x/100) + o) + 1)) % 4), 320, 64, 64, -(x * -Math.sin(pos.dir) + y * Math.cos(pos.dir)) - 16 + 320 + 32 * Math.abs(Math.floor(4 * 100 * (Math.floor(pos.y/100) + i) + 1) % 4), -(x * Math.cos(pos.dir) + y * Math.sin(pos.dir)) - 16 + 180 + 32 * Math.abs(Math.floor(4 * 100 * (Math.floor(pos.x/100) + o) + 1) % 4), 32, 32)
+
+        for (let i = 0; i < lilypad.length; i++) {
+            if (lilypad.at(i).drawDel()) {
+                lilypad.at(i).flip();
             }
         }
+
         //draw projectiles
         for (let i = 0; i < projectiles.length; i++) projectiles.at(i).draw();
         // draw Player
@@ -863,21 +919,15 @@ function draw() {
         ctx.fillText("hp : " + Math.floor(hp), 25, 335);
         
     } else if (menuState == 2) {
-        ctx.fillStyle = 'rgb(0, 100, 0)';
-        for (let o = -5; o < 6; o++) {
-            let x = 100 * (Math.floor(pos.x/100) + o) - pos.x;
-            for (let i = -3; i < 4; i++) {
-                let y = 100 * (Math.floor(pos.y/100) + i) - pos.y;
-                ctx.fillRect(-(x * -Math.sin(pos.dir) + y * Math.cos(pos.dir)) - 5/2 + 320, -(x * Math.cos(pos.dir) + y * Math.sin(pos.dir)) - 5/2 + 180, 5, 5);
+        for (let i = 0; i < lilypad.length; i++) {
+            if (lilypad.at(i).drawDel()) {
+                lilypad.at(i).flip();
             }
         }
     } else if (menuState == 4) {
-        ctx.fillStyle = 'rgb(0, 100, 0)';
-        for (let o = -5; o < 6; o++) {
-            let x = 100 * (Math.floor(pos.x/100) + o) - pos.x;
-            for (let i = -3; i < 4; i++) {
-                let y = 100 * (Math.floor(pos.y/100) + i) - pos.y;
-                ctx.fillRect(-(x * -Math.sin(pos.dir) + y * Math.cos(pos.dir)) - 5/2 + 320, -(x * Math.cos(pos.dir) + y * Math.sin(pos.dir)) - 5/2 + 180, 5, 5);
+        for (let i = 0; i < lilypad.length; i++) {
+            if (lilypad.at(i).drawDel()) {
+                lilypad.at(i).flip();
             }
         }
         // draw 3 Options
