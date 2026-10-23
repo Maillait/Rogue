@@ -694,17 +694,17 @@ function game() {
     if (keyIn.space && performance.now() > nextSpecial) {
         switch (special) {
             case 1:
-                nextSpecial = performance.now() + 100/specialStrength;
-                punchActiveUntil = performance.now() + 0.5 * specialStrength;
+                nextSpecial = performance.now() + 5000/specialStrength;
+                punchActiveUntil = performance.now() + 200 * specialStrength;
                 pos.v = 40 + 20 * specialStrength;
                 break;
             case 2:
                 projectiles.push(new Projectile(pos.x, pos.y, 25, pos.dir, 4, "tp", "rgb(101, 18, 196)", "Player"));
-                nextSpecial = performance.now() + 10/specialStrength;
+                nextSpecial = performance.now() + 5000/specialStrength;
                 break;
             case 3:
                 projectiles.push(new Projectile(pos.x, pos.y, 30 * specialStrength, pos.dir, 4, "laser", "rgb(238, 33, 33)", "Player"));
-                nextSpecial = performance.now() + 0.2/specialStrength;
+                nextSpecial = performance.now() + 200/specialStrength;
                 break;
             case 4:
                 // add shield functionality
