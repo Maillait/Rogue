@@ -482,6 +482,7 @@ new upgrade("teleport", 2, "special"), // special (spacebar) teleports you to wh
 new upgrade("laser", 2, "special"), // special (spacebar) fast weak gun (compliments base gun)
 new upgrade("shield", 2, "special") // special (spacebar) acts as a shield, no cooldown, but you cannot attack
 ];
+
 let keyIn = new keys();
 let pos = new position();
 
@@ -538,6 +539,7 @@ let gunCooldown = 10;
 let special = 0;
 let specialStrength = 0;
 let nextSpecial = 0;
+let shieldUp = 0;
 
 plot.addEventListener('click', function(e) {
     let func = "NA";
@@ -661,35 +663,61 @@ function resetDefault() {
     specialStrength = 0;
     nextSpecial = 0;
     pos = new position();
+    lilypad = [
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads(),
+    new lilypads()
+    ];
 }
 
 function game() {
     //update player position +
-    if (keyIn.up || keyIn.w) {
+    // finish shield ...
+    if (shieldUp == 0 || specialStrength == 2){
+        if (keyIn.up || keyIn.w) {
         if (pos.v < 4 * speed + 6) pos.v += 2 * speed * lastTick/50;
-    } else if (keyIn.down || keyIn.s) {
+        } else if (keyIn.down || keyIn.s) {
         if (pos.v > -2 * speed - 3) pos.v -= 2 * speed * lastTick/50;
-    } else if (pos.v != 0) pos.v /= 2;
-    if (pos.v > 4 * speed + 6) pos.v -= 1 * lastTick/50;
-    pos.kb /= 3 * 50/lastTick;
-    if (keyIn.right) pos.dir -= 0.1 * lastTick/50;
-    if (keyIn.left) pos.dir += 0.1 * lastTick/50;
-    if (keyIn.a) {
+        }
+        if (keyIn.right) pos.dir -= 0.1 * lastTick/50;
+        if (keyIn.left) pos.dir += 0.1 * lastTick/50;
+        if (keyIn.a) {
         pos.x += 4 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
         pos.y += 4 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
-    }
-    if (keyIn.d) {
+        }
+        if (keyIn.d) {
         pos.x -= 4 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
         pos.y -= 4 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
+        }
     }
+    pos.kb /= 3 * 50/lastTick;
+    if (pos.v > 4 * speed + 6) pos.v -= 1 * lastTick/50;
+    if (pos.v != 0 && !(keyIn.up || keyIn.w || keyIn.down || keyIn.s)) pos.v /= 2;
 
-
-    if (keyIn.q && performance.now() - punchActiveUntil > punchCooldown * 50) punchActiveUntil = performance.now() + punch * 200 + 1000;
+    if (keyIn.q && performance.now() - punchActiveUntil > punchCooldown * 50) punchActiveUntil = performance.now() + punch * 100 + 100;
     if (keyIn.e && performance.now() - lastBullet > gunCooldown * 50) {
         lastBullet = performance.now();
         projectiles.push(new Projectile(pos.x, pos.y, gun + 6, pos.dir, 5 + gun * 2, "bullet", 'rgb(233, 0, 0)', "Player"));
     }
 
+    shieldUp = 0;
     if (hp < maxhp) hp += regen/5;
     if (keyIn.space && performance.now() > nextSpecial) {
         switch (special) {
@@ -707,7 +735,7 @@ function game() {
                 nextSpecial = performance.now() + 200/specialStrength;
                 break;
             case 4:
-                // add shield functionality
+                shieldUp = 1;
                 break;
         }
     }
@@ -894,7 +922,12 @@ function draw() {
         //draw projectiles
         for (let i = 0; i < projectiles.length; i++) projectiles.at(i).draw();
         // draw Player
-        if (punchActiveUntil >= performance.now()) {
+        if (shieldUp == 1) {
+            ctx.fillStyle = 'rgba(27, 212, 126, 0.47)';
+            ctx.beginPath();
+            ctx.ellipse(320, 180, 48, 48, 0, 0, 2 * Math.PI);
+            ctx.fill();
+        } else if (punchActiveUntil >= performance.now()) {
             ctx.fillStyle = 'rgba(223, 30, 30, 0.36)';
             ctx.beginPath();
             ctx.ellipse(320, 180, 48, 48, 0, 0, 2 * Math.PI);
