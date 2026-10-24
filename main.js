@@ -44,6 +44,8 @@ class position {
     x = 0;
     y = 0;
     v = 0;
+    xv = 0;
+    yv = 0;
     kb = 0;
     dir = -Math.PI/2;
     kbdir = 0;
@@ -541,10 +543,14 @@ let specialStrength = 0;
 let nextSpecial = 0;
 let shieldUp = 0;
 
-plot.addEventListener('click', function(e) {
+let mdown = false;
+let my = 0;
+let mx = 0;
+
+plot.addEventListener('mousedown', function(e) {
     let func = "NA";
     for (let i = 0; i < buttons.length; i++) 
-        if (buttons.at(i).inBounds(e.clientX -plot.getBoundingClientRect().left, e.clientY - plot.getBoundingClientRect().top) == true && buttons.at(i).visible == true) {
+        if (buttons.at(i).inBounds(mx, my) == true && buttons.at(i).visible == true) {
             func = buttons.at(i).func;
             break;
         }
@@ -587,7 +593,17 @@ plot.addEventListener('click', function(e) {
             } else alert("Sold out!");
             break;
         default:
+            mdown = true;
     };
+});
+
+plot.addEventListener('mouseup', function(e) {
+    mdown = false;
+});
+
+window.addEventListener('mousemove', function(e) {
+    mx = (e.clientX - plot.getBoundingClientRect().left) / plot.getBoundingClientRect().width * 640;
+    my = (e.clientY - plot.getBoundingClientRect().top) / plot.getBoundingClientRect().height * 360;
 });
 
 window.addEventListener('keydown', function(e) {
@@ -696,8 +712,8 @@ function game() {
         } else if (keyIn.down || keyIn.s) {
         if (pos.v > -2 * speed - 3) pos.v -= 2 * speed * lastTick/50;
         }
-        if (keyIn.right) pos.dir -= 0.1 * lastTick/50;
-        if (keyIn.left) pos.dir += 0.1 * lastTick/50;
+        if (mx > 460) pos.dir += 0.05 * lastTick/50;
+        if (mx < 180) pos.dir -= 0.05 * lastTick/50;
         if (keyIn.a) {
         pos.x += 4 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
         pos.y += 4 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
@@ -712,9 +728,9 @@ function game() {
     if (pos.v != 0 && !(keyIn.up || keyIn.w || keyIn.down || keyIn.s)) pos.v /= 2;
 
     if (keyIn.q && performance.now() - punchActiveUntil > punchCooldown * 50) punchActiveUntil = performance.now() + punch * 100 + 100;
-    if (keyIn.e && performance.now() - lastBullet > gunCooldown * 50) {
+    if (mdown && performance.now() - lastBullet > gunCooldown * 50) {
         lastBullet = performance.now();
-        projectiles.push(new Projectile(pos.x, pos.y, gun + 6, pos.dir, 5 + gun * 2, "bullet", 'rgb(233, 0, 0)', "Player"));
+        projectiles.push(new Projectile(pos.x, pos.y, gun + 6, pos.dir -Math.PI/2 - Math.atan2(my - 180, mx - 320), 5 + gun * 2, "bullet", 'rgb(233, 0, 0)', "Player"));
     }
 
     shieldUp = 0;
@@ -933,7 +949,11 @@ function draw() {
             ctx.ellipse(320, 180, 48, 48, 0, 0, 2 * Math.PI);
             ctx.fill();
         }
-        ctx.drawImage(sprites, 0, 256, 64, 64, 288, 148, 64, 64);
+        ctx.save();
+        ctx.translate(320, 180);
+        ctx.rotate(-Math.PI/2 - Math.atan2(my - 180, -mx + 320));
+        ctx.drawImage(sprites, 0, 256, 64, 64, -32, -32, 64, 64);
+        ctx.restore();
         //draw entities
         for (let i = 0; i < entities.length; i++) entities.at(i).draw();
 
