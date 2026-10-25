@@ -495,7 +495,7 @@ let lilypad = [
 
 let punch = 1;
 let gun = 1;
-let speed = 1;
+let speed = 1.4;
 let maxhp = 500;
 let defense = 0;
 let regen = 0;
@@ -675,22 +675,22 @@ function game() {
     // finish shield ...
     if (shieldUp == 0 || specialStrength == 2){
         if (keyIn.up || keyIn.w) {
-        if (pos.v < 4 * speed + 6) pos.v += 2 * speed * lastTick/50;
+        if (pos.v < 6 * speed + 8) pos.v += 3 * speed * lastTick/50;
         } else if (keyIn.down || keyIn.s) {
-        if (pos.v > -2 * speed - 3) pos.v -= 2 * speed * lastTick/50;
+        if (pos.v > -3 * speed - 4) pos.v -= 3 * speed * lastTick/50;
         }
         pos.dir = -Math.PI / 2;
         if (keyIn.a) {
-        pos.x += 4 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
-        pos.y += 4 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
+        pos.x += 10 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
+        pos.y += 10 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
         }
         if (keyIn.d) {
-        pos.x -= 4 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
-        pos.y -= 4 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
+        pos.x -= 10 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
+        pos.y -= 10 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
         }
     }
     pos.kb *= 0.8;
-    if (pos.v > 4 * speed + 6) pos.v -= 1 * lastTick/50;
+    if (pos.v > 6 * speed + 8) pos.v -= 1 * lastTick/50;
     if (pos.v != 0 && !(keyIn.up || keyIn.w || keyIn.down || keyIn.s)) pos.v /= 2;
 
     if (keyIn.q && performance.now() - punchActiveUntil > punchCooldown * 50) punchActiveUntil = performance.now() + punch * 100 + 100;
