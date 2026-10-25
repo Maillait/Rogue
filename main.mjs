@@ -94,8 +94,10 @@ class Entity {
         this.x += this.v * Math.cos(this.direction) + this.kb * Math.cos(this.kbdir) * lastTick/50;
         this.y += this.v * Math.sin(this.direction) + this.kb * Math.sin(this.kbdir) * lastTick/50;
 
-        while (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > Math.PI) this.direction -= 2 * Math.PI;
-        while (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -Math.PI) this.direction += 2 * Math.PI;
+        let targetAngle = Math.atan2(pos.y - this.y, pos.x - this.x);
+        let diff = (this.direction - targetAngle) % (2 * Math.PI);
+        if (diff > Math.PI) this.direction -= 2 * Math.PI;
+        else if (diff < -Math.PI) this.direction += 2 * Math.PI;
 
         this.kb /= 3;
 
@@ -115,7 +117,7 @@ class Entity {
                     this.lastAttack = performance.now();
                     pos.kbdir = Math.atan2(pos.kb * Math.sin(pos.kbdir) + 5 * Math.sin(this.direction), pos.kb * Math.cos(pos.kbdir) + 5 * Math.cos(this.direction));
                     pos.kb += 5;
-                    hp -= 10 - defense;
+                    hp -= Math.max(1, 10 - defense);
                 }
                 break;
             case "gunman":
@@ -142,7 +144,7 @@ class Entity {
                     this.kb += punch * 4 + 16;
                     this.hp -= punch * 5 + 10;
                 }
-                
+
                 break;
             case "grenade":
                 if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) > 250) {
@@ -192,7 +194,7 @@ class Entity {
                     this.kb += punch * 4 + 16;
                     this.hp -= punch * 5 + 10;
                 }
-                
+
                 break;
             case "tank":
                 if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.1;
@@ -205,11 +207,11 @@ class Entity {
                         projectiles.push(new Projectile(this.x, this.y, 15, this.direction + Math.PI/6, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
                         projectiles.push(new Projectile(this.x, this.y, 15, this.direction - Math.PI/6, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
                         this.lastAttack = performance.now();
-                    } 
+                    }
                     if (Math.random() > 0.5 && entities.length < 500) {
-                        if (Math.random() < 0.3333333) entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "punch", 0)); 
+                        if (Math.random() < 0.3333333) entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "punch", 0));
                         else if (Math.random() < 0.5) entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "gunman", 0));
-                        else entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "grenade", 0)); 
+                        else entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "grenade", 0));
                         this.lastAttack = performance.now();
                     }
                 }
@@ -250,7 +252,7 @@ class Entity {
         }
 
         ctx.restore();
-    } 
+    }
 }
 
 class keys {
@@ -345,7 +347,7 @@ class lilypads {
     xrel;
     yrel;
     type;
-    
+
     constructor () {
         let angle = Math.random() * Math.PI;
         this.xrel = 500 * (1 - Math.random() * Math.random()) * Math.cos(angle) + pos.x;
@@ -421,7 +423,7 @@ const enemyTypes = [
     "tank"
 ];
 const buttons = [
-    new Button(0, 60, 400, 45, "Play Rogue", 0, "PlayGame", 30, 5, "center-center"), 
+    new Button(0, 60, 400, 45, "Play Rogue", 0, "PlayGame", 30, 5, "center-center"),
     new Button(10, 10, 60, 20, "Quit", 1, "LoadRunMenu", 15, 5, "top-left"),
     new Button(0, -30, 400, 45, "Resume Game", 2, "ResumeGame", 30, 5, "center-center"),
     new Button(0, 40, 400, 45, "Quit Game", 2, "ExitGame", 30, 5, "center-center"),
@@ -510,7 +512,7 @@ let mx = 0;
 
 plot.addEventListener('mousedown', function(e) {
     let func = "NA";
-    for (let i = 0; i < buttons.length; i++) 
+    for (let i = 0; i < buttons.length; i++)
         if (buttons.at(i).inBounds(mx, my, 640, 360) == true && buttons.at(i).visible == true) {
             func = buttons.at(i).func;
             break;
@@ -600,9 +602,13 @@ window.addEventListener('keyup', function(e) {
 requestAnimationFrame(access);
 
 function access() {
-    lastTickTime = performance.now() - lastTick;
+    const now= performance.now()
+    if (!lastTickTime) lastTickTime = now;
+    const dt = now - lastTickTime;
+    lastTickTime = now;
+    lastTick = Math.min(dt, 100) * 3;
 
-    if (menuState == 1) game();
+    if (menuState === 1) game();
     draw();
 
     requestAnimationFrame(access);
@@ -673,8 +679,7 @@ function game() {
         } else if (keyIn.down || keyIn.s) {
         if (pos.v > -2 * speed - 3) pos.v -= 2 * speed * lastTick/50;
         }
-        if (mx > 460) pos.dir += 0.05 * lastTick/50;
-        if (mx < 180) pos.dir -= 0.05 * lastTick/50;
+        pos.dir = -Math.PI / 2;
         if (keyIn.a) {
         pos.x += 4 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
         pos.y += 4 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
@@ -684,7 +689,7 @@ function game() {
         pos.y -= 4 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
         }
     }
-    pos.kb /= 3 * 50/lastTick;
+    pos.kb *= 0.8;
     if (pos.v > 4 * speed + 6) pos.v -= 1 * lastTick/50;
     if (pos.v != 0 && !(keyIn.up || keyIn.w || keyIn.down || keyIn.s)) pos.v /= 2;
 
@@ -727,11 +732,11 @@ function game() {
         else if (performance.now() - refTime < 120000 && entityType > 2) entityType = 0;
         else if (performance.now() - refTime < 150000 && entityType > 3) entityType = 0;
         let angle = Math.random() * 2 * Math.PI;
-        let entityx = 500 * Math.cos(angle); 
+        let entityx = 500 * Math.cos(angle);
         if (Math.random() > 0.5) entityx = entityx - 2 * Math.cos(angle);
-        let entityy = 500 * Math.sin(angle); 
+        let entityy = 500 * Math.sin(angle);
         if (Math.random() > 0.5) entityy = entityy - 2 * Math.sin(angle);
-    
+
         entities.push(new Entity(entityx, entityy, Math.atan2(pos.y - entityy, pos.x - entityx), enemyTypes[entityType], 2));
         lastEnemy = performance.now();
     }
@@ -750,6 +755,7 @@ function game() {
                 score += 4;
             }
             entities.splice(i, 1);
+            i--;
         }
     }
 
@@ -775,14 +781,14 @@ function game() {
             } else if (Math.sqrt((projectiles.at(i).x - pos.x) * (projectiles.at(i).x - pos.x) + (projectiles.at(i).y - pos.y) * (projectiles.at(i).y - pos.y)) < projectiles.at(i).size + 24) {
                 switch (projectiles.at(i).effect) {
                     case "arrow":
-                        hp -= 3 - defense;
+                        hp -= Math.max(1, 3 - defense);
                         pos.kbdir = Math.atan2(pos.kb * Math.sin(pos.kbdir) + Math.sin(projectiles.at(i).direction), pos.kb * Math.cos(pos.kbdir) + Math.cos(projectiles.at(i).direction));
                         pos.kb += 1;
                         projectiles.splice(i, 1);
                         i--;
                         break;
                     case "grenade":
-                        hp -= 10 - defense;
+                        hp -= Math.max(1, 10 - defense);
                         pos.kb += 10;
                         pos.kbdir = Math.atan2(pos.kb * Math.sin(pos.kbdir) + 10 * Math.sin(projectiles.at(i).direction), pos.kb * Math.cos(pos.kbdir) + 10 * Math.cos(projectiles.at(i).direction));
                         projectiles.splice(i, 1);
@@ -875,7 +881,8 @@ function game() {
                     console.log("upgrade level not found");
             }
             for (let i = 0; i < ups.length; i++) {
-                if (allUps.at(inUps(ups.at(i))).maxed()) ups[i] = "Sold Out";
+                let upIdx = inUps(ups.at(i));
+                if (upIdx !== -1 && allUps.at(upIdx).maxed()) ups[i] = "Sold Out";
             }
         }
     }
@@ -886,7 +893,7 @@ function draw() {
     ctx.fillRect(0, 0, 640, 360);
     ctx.fillStyle = 'rgb(59, 201, 211)';
     ctx.fillRect(3, 3, 634, 354);
-    
+
     if (menuState == 0) ctx.drawImage(sprites, 0, 0, 384, 128, 128 + 10 * Math.cos(performance.now()/500), 80 + 5 * Math.sin(performance.now()/250), 384, 128);
     else if (menuState == 1) {
 
@@ -931,7 +938,7 @@ function draw() {
         ctx.fillStyle = 'rgb(2, 2, 2)';
         ctx.font = "15px monospace";
         ctx.fillText("hp : " + Math.floor(hp), 25, 335);
-        
+
     } else if (menuState == 2) {
         for (let i = 0; i < lilypad.length; i++) {
             if (lilypad.at(i).drawDel()) {
@@ -968,7 +975,7 @@ function draw() {
         ctx.fillText("Time : " + Math.floor((saveTime - refTime)/1000) + " seconds", 240, 160);
     }
 
-    for (var i = 0; i < buttons.length; i++) 
+    for (var i = 0; i < buttons.length; i++)
         if (buttons.at(i).pageID == menuState) buttons.at(i).drawButton(640, 360, ctx);
         else buttons.at(i).visible = false;
 
