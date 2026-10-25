@@ -10,8 +10,9 @@ class Button {
     text = 0;
     fontSize = 30;
     borderWidth = 5;
+    alignment = "";
 
-    constructor(x, y, width, height, text, pageID, functionality, fontSize, borderWidth) {
+    constructor(x, y, width, height, text, pageID, functionality, fontSize, borderWidth, alignment) {
         this.x = x;
         this.y = y;
         this.func = functionality;
@@ -21,21 +22,60 @@ class Button {
         this.pageID = pageID;
         this.fontSize = fontSize;
         this.borderWidth = borderWidth;
+        this.alignment = alignment;
     }
 
-    drawButton() {
+    drawButton(width, height) {
+        let xy = this.align(width, height);
+
         ctx.fillStyle = 'rgb(102, 177, 68)';
-        ctx.fillRect(this.x - this.width/2 - this.borderWidth/2, this.y - this.height/2 - this.borderWidth/2, this.width + this.borderWidth, this.height + this.borderWidth);
+        ctx.fillRect(xy.x - this.borderWidth/2, xy.y - this.borderWidth/2, this.width + this.borderWidth, this.height + this.borderWidth);
         ctx.fillStyle = 'rgb(122, 73, 8)';
-        ctx.fillRect(this.x - this.width/2, this.y - this.height/2, this.width, this.height);
+        ctx.fillRect(xy.x, xy.y, this.width, this.height);
         ctx.fillStyle = 'rgb(102, 177, 68)';
         ctx.font = `${this.fontSize}px monospace`;
-        ctx.fillText(this.text, this.x - ctx.measureText(this.text).width/2, this.y + this.fontSize / 3);
+        ctx.fillText(this.text, xy.x - ctx.measureText(this.text).width/2 + this.width/2, xy.y + this.fontSize / 3 + this.height/2);
         this.visible = true;
     }
 
-    inBounds(xpos, ypos) {
-        if (xpos > this.x - this.width/2 && xpos < this.x + this.width/2 && ypos > this.y - this.height/2 && ypos < this.y + this.height/2) return true;
+    align(width, height) {
+        let x = this.x;
+        let y = this.y;
+
+        switch (this.alignment) {
+            case "top-center":
+                x += width/2 - this.width/2;
+                break;
+            case "bottom-center":
+                x += width/2 - this.width/2;
+                y = height - this.height + y;
+                break;
+            case "top-left":
+                break;
+            case "bottom-left":
+                y = height - this.height + y;
+                break;
+            case "top-right":
+                x = width - this.width + x;
+                break;
+            case "bottom-right":
+                x = width - this.width + x;
+                y = height - this.height + y;
+                break;
+            case "center-center":
+                x += width/2 - this.width/2;
+                y += height/2 - this.height/2;
+                break;
+            default:
+        }
+
+        return {x, y};
+    }
+
+    inBounds(xpos, ypos, width, height) {
+        let xy = this.align(width, height);
+
+        if (xpos > xy.x && xpos < xy.x + this.width && ypos > xy.y && ypos < xy.y + this.height) return true;
         else return false;
     }
 }
@@ -460,14 +500,14 @@ const enemyTypes = [
     "tank"
 ];
 const buttons = [
-    new Button(320, 240, 400, 45, "Play Rogue", 0, "PlayGame", 30, 5), 
-    new Button(50, 30, 60, 20, "Quit", 1, "LoadRunMenu", 15, 5),
-    new Button(320, 150, 400, 45, "Resume Game", 2, "ResumeGame", 30, 5),
-    new Button(320, 220, 400, 45, "Quit Game", 2, "ExitGame", 30, 5),
-    new Button(120, 220, 130, 20, "Pick 1", 4, "op1", 15, 5),
-    new Button(320, 220, 130, 20, "Pick 2", 4, "op2", 15, 5),
-    new Button(520, 220, 130, 20, "Pick 3", 4, "op3", 15, 5),
-    new Button(320, 300, 400, 45, "Continue", 5, "ExitGame", 30, 5),
+    new Button(0, 60, 400, 45, "Play Rogue", 0, "PlayGame", 30, 5, "center-center"), 
+    new Button(10, 10, 60, 20, "Quit", 1, "LoadRunMenu", 15, 5, "top-left"),
+    new Button(0, -30, 400, 45, "Resume Game", 2, "ResumeGame", 30, 5, "center-center"),
+    new Button(0, 40, 400, 45, "Quit Game", 2, "ExitGame", 30, 5, "center-center"),
+    new Button(-200, 40, 130, 20, "Pick 1", 4, "op1", 15, 5, "center-center"),
+    new Button(0, 40, 130, 20, "Pick 2", 4, "op2", 15, 5, "center-center"),
+    new Button(200, 40, 130, 20, "Pick 3", 4, "op3", 15, 5, "center-center"),
+    new Button(0, 120, 400, 45, "Continue", 5, "ExitGame", 30, 5, "center-center"),
 ];
 const allUps = [
 new upgrade("punch", 5, "basic"),
@@ -550,7 +590,7 @@ let mx = 0;
 plot.addEventListener('mousedown', function(e) {
     let func = "NA";
     for (let i = 0; i < buttons.length; i++) 
-        if (buttons.at(i).inBounds(mx, my) == true && buttons.at(i).visible == true) {
+        if (buttons.at(i).inBounds(mx, my, 640, 360) == true && buttons.at(i).visible == true) {
             func = buttons.at(i).func;
             break;
         }
@@ -1008,7 +1048,7 @@ function draw() {
     }
 
     for (var i = 0; i < buttons.length; i++) 
-        if (buttons.at(i).pageID == menuState) buttons.at(i).drawButton();
+        if (buttons.at(i).pageID == menuState) buttons.at(i).drawButton(640, 360);
         else buttons.at(i).visible = false;
 
     tickCount++;

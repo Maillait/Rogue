@@ -2,38 +2,18 @@
   border : 3px solid black;
   width : 640px;
   height : 360px;
-  position : fixed;
-  left : 15vw;
-  top : 15vh;
   overflow : hidden;
 }
 
 body {
-    background-color: rgb(253, 253, 253);
-}
-
-div1 {
-    background-color: rgb(36, 36, 36);
-    position : fixed;
-    left : 10vw;
-    top : 5vh;
-    width : 80vw;
-    height : 70vh;
-    min-height : 500px;
-    overflow : hidden;
-}
-
-div {
-    background-color: rgb(197, 196, 196);
-    position : fixed;
-    left : 10vw;
-    top : 75vh;
-    width : 80vw;
-    height : 20vh;
-    overflow : hidden;
+    background-color: rgb(33, 143, 125);
+    display: flex;
+    float: center;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
 }
 
 * {
-    margin : 0;
-    padding : 0; 
+    margin: 20px;
 }
