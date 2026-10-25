@@ -287,7 +287,7 @@ class Entity {
                     } 
                     if (Math.random() > 0.5 && entities.length < 500) {
                         if (Math.random() < 0.3333333) entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "punch", 0)); 
-                        else if (Math.random < 0.5) entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "gunman", 0)); 
+                        else if (Math.random() < 0.5) entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "gunman", 0));
                         else entities.push(new Entity(this.x + Math.random() * 20, this.y + Math.random() * 20, this.direction, "grenade", 0)); 
                         this.lastAttack = performance.now();
                     }
@@ -819,7 +819,7 @@ function game() {
         entities.at(i).step();
         if (entities.at(i).hp <= 0) {
             switch (entities.at(i).type) {
-                case "health":
+                case "healer":
                     score += 5;
                     break;
                 case "tank":
@@ -998,7 +998,7 @@ function draw() {
         for (let i = 0; i < entities.length; i++) entities.at(i).draw();
 
         ctx.fillStyle = 'rgb(100, 219, 45)';
-        ctx.font = "20px monospaced";
+        ctx.font = "20px monospace";
         ctx.fillText("Score : " + score, 500, 30);
 
         ctx.fillStyle = 'rgb(63, 1, 1)';
@@ -1008,7 +1008,7 @@ function draw() {
         ctx.fillRect(20, 320, hp * 600 / maxhp, 20);
 
         ctx.fillStyle = 'rgb(2, 2, 2)';
-        ctx.font = "15px monospaced";
+        ctx.font = "15px monospace";
         ctx.fillText("hp : " + Math.floor(hp), 25, 335);
         
     } else if (menuState == 2) {
@@ -1033,16 +1033,16 @@ function draw() {
         ctx.fillRect(230, 130, 180, 110);
         ctx.fillRect(430, 130, 180, 110);
         ctx.fillStyle = 'rgb(1, 179, 1)';
-        ctx.font = '20px monospaced';
+        ctx.font = '20px monospace';
         ctx.fillText(ups.at(0), 120 - ctx.measureText(ups.at(0)).width/2, 180);
         ctx.fillText(ups.at(1), 320 - ctx.measureText(ups.at(1)).width/2, 180);
         ctx.fillText(ups.at(2), 520 - ctx.measureText(ups.at(2)).width/2, 180);
 
     } else if (menuState == 5) {
         ctx.fillStyle = 'rgb(1, 179, 1)';
-        ctx.font = "40px monospaced";
+        ctx.font = "40px monospace";
         ctx.fillText("You Died...", 230, 100);
-        ctx.font = "20px monospaced";
+        ctx.font = "20px monospace";
         ctx.fillText("Score : " + score, 280, 130);
         ctx.fillText("Time : " + Math.floor((saveTime - refTime)/1000) + " seconds", 240, 160);
     }
