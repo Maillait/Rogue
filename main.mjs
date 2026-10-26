@@ -81,11 +81,11 @@ class Entity {
                 break;
             case "healer":
                 this.cooldown = 5;
-                this.hp = 500;
+                this.hp = 200;
                 break;
             case "tank":
                 this.cooldown = 20;
-                this.hp = 2000;
+                this.hp = 500;
                 break;
         }
     }
@@ -104,8 +104,8 @@ class Entity {
                 if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) > 0.1) this.direction -= 0.2;
                 else if (this.direction - Math.atan2(pos.y - this.y, pos.x - this.x) < -0.1) this.direction += 0.2;
                 if (performance.now() - refTime < 18000) this.v = 3;
-                else if (performance.now() - refTime < 60000) this.v = (performance.now() - refTime)/6000;
-                else this.v = 10;
+                else if (performance.now() - refTime < 30000) this.v = (performance.now() - refTime)/6000;
+                else this.v = 5;
 
                 if (Math.sqrt((this.x - pos.x) * (this.x - pos.x) + (this.y - pos.y) * (this.y - pos.y)) < 48 && punchActiveUntil >= performance.now()) {
                     this.kbdir = this.direction + Math.PI;
@@ -200,10 +200,10 @@ class Entity {
                 this.v = 1;
                 if (performance.now() - this.lastAttack > this.cooldown * 50) {
                     if (Math.random() > 0.5) {
-                        projectiles.push(new Projectile(this.x, this.y, 10, this.direction, 10, "grenade", 'rgb(106, 153, 45)', "Enemy"));
-                        projectiles.push(new Projectile(this.x, this.y, 15, this.direction, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
-                        projectiles.push(new Projectile(this.x, this.y, 15, this.direction + Math.PI/6, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
-                        projectiles.push(new Projectile(this.x, this.y, 15, this.direction - Math.PI/6, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
+                        projectiles.push(new Projectile(this.x, this.y, 5, this.direction, 10, "grenade", 'rgb(106, 153, 45)', "Enemy"));
+                        projectiles.push(new Projectile(this.x, this.y, 10, this.direction, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
+                        projectiles.push(new Projectile(this.x, this.y, 10, this.direction + Math.PI/6, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
+                        projectiles.push(new Projectile(this.x, this.y, 10, this.direction - Math.PI/6, 6, "arrow", 'rgb(156, 89, 0)', "Enemy"));
                         this.lastAttack = performance.now();
                     } 
                     if (Math.random() > 0.5 && entities.length < 500) {
@@ -268,19 +268,55 @@ class keys {
     d = false;
 }
 
-class upgrade {
-    name;
-    level = 0;
-    maxLevel;
+class lilypads {
+    xrel;
+    yrel;
     type;
+    
+    constructor () {
+        let angle = Math.random() * Math.PI;
+        this.xrel = 500 * (1 - Math.random() * Math.random()) * Math.cos(angle) + pos.x;
+        this.yrel = 500 * (1 - Math.random() * Math.random()) * Math.sin(angle) + pos.y;
+        this.type = Math.floor(Math.random() * 4);
+    }
 
-    constructor (name, maxLevel, type) {
+    drawDel() {
+        let rx = this.xrel - pos.x;
+        let ry = this.yrel - pos.y;
+
+        if (rx * rx + ry * ry > 370 * 370) return true;
+        else {
+            ctx.save();
+            ctx.translate(-(rx * -Math.sin(pos.dir) + ry * Math.cos(pos.dir)) + 320, -(rx * Math.cos(pos.dir) + ry * Math.sin(pos.dir)) + 180);
+            ctx.rotate(pos.dir);
+
+            ctx.drawImage(sprites, 128 + 64 * this.type, 320, 64, 64, -16, -16, 32, 32);
+
+            ctx.restore();
+
+            return false;
+        }
+    }
+
+    flip() {
+        this.xrel = pos.x + pos.x - this.xrel;
+        this.yrel = pos.y + pos.y - this.yrel;
+    }
+}
+
+class upgrade {
+        name;
+        level = 0;
+        maxLevel;
+        type;
+
+        constructor (name, maxLevel, type) {
         this.name = name;
         this.maxLevel = maxLevel;
         this.type = type;
-    }
+        }
 
-    upgrade () {
+        upgrade () {
         if (!this.maxed()) {
             this.level++;
 
@@ -334,47 +370,11 @@ class upgrade {
                 console.log("Error: upgrade not found");
             }
         }
-    }
-
-    maxed () {
-        return this.level >= this.maxLevel;
-    }
-}
-
-class lilypads {
-    xrel;
-    yrel;
-    type;
-    
-    constructor () {
-        let angle = Math.random() * Math.PI;
-        this.xrel = 500 * (1 - Math.random() * Math.random()) * Math.cos(angle) + pos.x;
-        this.yrel = 500 * (1 - Math.random() * Math.random()) * Math.sin(angle) + pos.y;
-        this.type = Math.floor(Math.random() * 4);
-    }
-
-    drawDel() {
-        let rx = this.xrel - pos.x;
-        let ry = this.yrel - pos.y;
-
-        if (rx * rx + ry * ry > 370 * 370) return true;
-        else {
-            ctx.save();
-            ctx.translate(-(rx * -Math.sin(pos.dir) + ry * Math.cos(pos.dir)) + 320, -(rx * Math.cos(pos.dir) + ry * Math.sin(pos.dir)) + 180);
-            ctx.rotate(pos.dir);
-
-            ctx.drawImage(sprites, 128 + 64 * this.type, 320, 64, 64, -16, -16, 32, 32);
-
-            ctx.restore();
-
-            return false;
         }
-    }
 
-    flip() {
-        this.xrel = pos.x + pos.x - this.xrel;
-        this.yrel = pos.y + pos.y - this.yrel;
-    }
+        maxed () {
+            return this.level >= this.maxLevel;
+        }
 }
 
 const plot = document.getElementById("plot");
@@ -508,7 +508,7 @@ let mdown = false;
 let my = 0;
 let mx = 0;
 
-plot.addEventListener('mousedown', function(e) {
+plot.addEventListener('mousedown', function() {
     let func = "NA";
     for (let i = 0; i < buttons.length; i++) 
         if (buttons.at(i).inBounds(mx, my, 640, 360) == true && buttons.at(i).visible == true) {
@@ -536,21 +536,21 @@ plot.addEventListener('mousedown', function(e) {
             if (ups[0] != "Sold Out") {
                 menuState = 1;
                 refTime -= performance.now() - saveTime;
-                allUps.at(inUps(ups.at(0))).upgrade();
+                allUps.at(inUps(ups.at(0))).upgrade(punch, gun, speed, maxhp, hp, defense, regen, punchCooldown, gunCooldown, special, specialStrength);
             } else alert("Sold out!");
             break;
         case "op2":
             if (ups[1] != "Sold Out") {
                 menuState = 1;
                 refTime -= performance.now() - saveTime;
-                allUps.at(inUps(ups.at(1))).upgrade();
+                allUps.at(inUps(ups.at(1))).upgrade(punch, gun, speed, maxhp, hp, defense, regen, punchCooldown, gunCooldown, special, specialStrength);
             } else alert("Sold out!");
             break;
         case "op3":
             if (ups[2] != "Sold Out") {
                 menuState = 1;
                 refTime -= performance.now() - saveTime;
-                allUps.at(inUps(ups.at(2))).upgrade();
+                allUps.at(inUps(ups.at(2))).upgrade(punch, gun, speed, maxhp, hp, defense, regen, punchCooldown, gunCooldown, special, specialStrength);
             } else alert("Sold out!");
             break;
         default:
@@ -580,6 +580,7 @@ window.addEventListener('keydown', function(e) {
     else if (e.key == 'e') keyIn.e = true;
     else if (e.key == 'q') keyIn.q = true;
     else if (e.key == 'Escape') keyIn.escape = true;
+    e.preventDefault();
 });
 
 window.addEventListener('keyup', function(e) {
@@ -666,26 +667,26 @@ function resetDefault() {
 
 function game() {
     //update player position +
-    // finish shield ...
     if (shieldUp == 0 || specialStrength == 2){
         if (keyIn.up || keyIn.w) {
-        if (pos.v < 4 * speed + 6) pos.v += 2 * speed * lastTick/50;
+        if (pos.v < speed + 2) pos.v += 2 * speed * lastTick/50;
         } else if (keyIn.down || keyIn.s) {
-        if (pos.v > -2 * speed - 3) pos.v -= 2 * speed * lastTick/50;
+        if (pos.v > -speed - 2) pos.v -= 2 * speed * lastTick/50;
         }
+        /* Somethning like this is all thats needed if I want to add in rotation again
         if (mx > 460) pos.dir += 0.05 * lastTick/50;
         if (mx < 180) pos.dir -= 0.05 * lastTick/50;
+        */
         if (keyIn.a) {
-        pos.x += 4 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
-        pos.y += 4 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
+        pos.x += speed + 2 * lastTick/50;
         }
         if (keyIn.d) {
-        pos.x -= 4 * speed * Math.cos(pos.dir + Math.PI/2) * lastTick/50;
-        pos.y -= 4 * speed * Math.sin(pos.dir + Math.PI/2) * lastTick/50;
+        pos.x -= speed + 2 * lastTick/50;
         }
     }
-    pos.kb /= 3 * 50/lastTick;
-    if (pos.v > 4 * speed + 6) pos.v -= 1 * lastTick/50;
+    pos.kb /= 3 * lastTick;
+    if (pos.v > speed + 2) pos.v -= 1 * lastTick/50;
+    else if (pos.v < -speed - 2) pos.v += 1 * lastTick/50;
     if (pos.v != 0 && !(keyIn.up || keyIn.w || keyIn.down || keyIn.s)) pos.v /= 2;
 
     if (keyIn.q && performance.now() - punchActiveUntil > punchCooldown * 50) punchActiveUntil = performance.now() + punch * 100 + 100;
@@ -699,16 +700,17 @@ function game() {
     if (keyIn.space && performance.now() > nextSpecial) {
         switch (special) {
             case 1:
+                // re-set system to manage without pos.dir, which is now only for screen rotation
                 nextSpecial = performance.now() + 5000/specialStrength;
                 punchActiveUntil = performance.now() + 200 * specialStrength;
                 pos.v = 40 + 20 * specialStrength;
                 break;
             case 2:
-                projectiles.push(new Projectile(pos.x, pos.y, 25, pos.dir, 4, "tp", "rgb(101, 18, 196)", "Player"));
+                projectiles.push(new Projectile(pos.x, pos.y, 25, pos.dir -Math.PI/2 - Math.atan2(my - 180, mx - 320), 4, "tp", "rgb(101, 18, 196)", "Player"));
                 nextSpecial = performance.now() + 5000/specialStrength;
                 break;
             case 3:
-                projectiles.push(new Projectile(pos.x, pos.y, 30 * specialStrength, pos.dir, 4, "laser", "rgb(238, 33, 33)", "Player"));
+                projectiles.push(new Projectile(pos.x, pos.y, 30 * specialStrength, pos.dir -Math.PI/2 - Math.atan2(my - 180, mx - 320), 4, "laser", "rgb(238, 33, 33)", "Player"));
                 nextSpecial = performance.now() + 200/specialStrength;
                 break;
             case 4:
@@ -721,7 +723,7 @@ function game() {
     pos.y += (pos.v * Math.sin(pos.dir) + pos.kb * Math.sin(pos.kbdir)) * lastTick/50;
 
     //update entity position & add Entities
-    if (performance.now() - lastEnemy > 20 && Math.random() > 0.97 && entities.length < 200) {
+    if (performance.now() - lastEnemy > 100 && Math.random() > 0.97 && entities.length < Math.sqrt((performance.now() - refTime)/1000) + 1) {
         let entityType = Math.floor(Math.random() * Math.random() * 5);
         if (performance.now() - refTime < 60000 && entityType > 1) entityType = 0;
         else if (performance.now() - refTime < 120000 && entityType > 2) entityType = 0;
@@ -735,7 +737,6 @@ function game() {
         entities.push(new Entity(entityx, entityy, Math.atan2(pos.y - entityy, pos.x - entityx), enemyTypes[entityType], 2));
         lastEnemy = performance.now();
     }
-
     for (let i = 0; i < entities.length; i++) {
         entities.at(i).step();
         if (entities.at(i).hp <= 0) {
@@ -802,6 +803,7 @@ function game() {
                         case "tp":
                             let tx = pos.x;
                             let ty = pos.y;
+
                             pos.x = entities.at(o).x;
                             pos.y = entities.at(o).y;
                             entities.at(o).y = ty;
